@@ -1,0 +1,2 @@
+focus_group,rows,accuracy,avg_prob,avg_fg_heat,avg_bg_heat,avg_forward_return
+background_focused,138,0.6884057971014492,0.5529222459248875,0.06385552420186391,0.9361444767834484,0.0005471404990581643

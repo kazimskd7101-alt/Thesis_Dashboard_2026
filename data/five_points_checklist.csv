@@ -1,0 +1,6 @@
+point,status,evidence_file
+Multi-scale intraday input,DONE,multi_scale_summary.csv
+Image-component ablations,DONE,ablation_summary.csv
+Selective tail-rule decision support,DONE,tail_grid_results.csv
+Grad-CAM chart-vs-background analysis,DONE,gradcam_chart_vs_background_summary.csv
+Simple benchmark comparisons,DONE,final_compare_table.csv
