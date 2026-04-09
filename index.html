@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trader Decision Support Dashboard | MOEX Si Thesis</title>
+  <meta
+    name="description"
+    content="Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-copy">
+          <h1>Trader Decision Support</h1>
+          <p>MOEX Si Futures · Thesis Artifact</p>
+        </div>
+      </div>
+
+      <div class="sidebar-block nav-section">
+        <div class="section-label">Navigation</div>
+        <nav>
+          <a class="nav-link active" href="#overview">
+            <span>Overview</span>
+            <span>01</span>
+          </a>
+          <a class="nav-link" href="#models">
+            <span>Model Results</span>
+            <span>02</span>
+          </a>
+          <a class="nav-link" href="#selection">
+            <span>Selective Support</span>
+            <span>03</span>
+          </a>
+          <a class="nav-link" href="#xai">
+            <span>Grad-CAM / XAI</span>
+            <span>04</span>
+          </a>
+          <a class="nav-link" href="#cases">
+            <span>Case Viewer</span>
+            <span>05</span>
+          </a>
+          <a class="nav-link" href="#artifact">
+            <span>Artifact Governance</span>
+            <span>06</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="section-label">Filters</div>
+
+        <div class="filter-grid">
+          <label class="filter-field">
+            <span>Contract</span>
+            <select id="filter-contract">
+              <option value="all">All contracts</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Split</span>
+            <select id="filter-split">
+              <option value="all">All splits</option>
+              <option value="train">Train</option>
+              <option value="val">Validation</option>
+              <option value="test">Test</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Signal Bucket</span>
+            <select id="filter-signal">
+              <option value="all">All signals</option>
+              <option value="long">Long</option>
+              <option value="short">Short</option>
+              <option value="watch">Watch / neutral</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Confidence Bucket</span>
+            <select id="filter-confidence">
+              <option value="all">All confidence</option>
+              <option value="very_high">Very high</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>XAI Group</span>
+            <select id="filter-xai-group">
+              <option value="all">All XAI groups</option>
+              <option value="chart">Chart-focused</option>
+              <option value="mixed">Mixed</option>
+              <option value="background">Background-focused</option>
+            </select>
+          </label>
+
+          <label class="filter-field">
+            <span>Date</span>
+            <input id="filter-date" type="date" />
+          </label>
+
+          <label class="filter-field">
+            <span>Search sample / timestamp</span>
+            <input id="filter-search" type="search" placeholder="e.g. SiZ5 2025-10-13" />
+          </label>
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn btn-primary" id="apply-filters">Apply</button>
+          <button class="btn btn-secondary" id="reset-filters">Reset</button>
+        </div>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="section-label">Thesis Positioning</div>
+        <div class="note-box">
+          <h4>Core Claim</h4>
+          <p>
+            The artifact is strongest as a <strong>selective decision-support system</strong>,
+            not as a universal full-coverage forecasting engine.
+          </p>
+        </div>
+      </div>
+
+      <div class="sidebar-block">
+        <div class="section-label">Legend</div>
+        <div class="legend-grid">
+          <div class="legend-item">
+            <span class="legend-swatch good"></span>
+            <span>High-quality support</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch warn"></span>
+            <span>Inspect carefully</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch bad"></span>
+            <span>Abstain / reject</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch accent"></span>
+            <span>Model/XAI cue</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar" id="overview">
+        <div class="page-title">
+          <h2>Intraday Decision Support for Traders</h2>
+          <p>
+            Selective CNN-based directional forecasting from candlestick chart images for
+            MOEX Si futures, with chronology-aware engineering, benchmark comparison,
+            Grad-CAM inspection, and abstention-oriented decision support.
+          </p>
+        </div>
+
+        <div class="topbar-actions">
+          <span class="status-badge live">Artifact Ready</span>
+          <span class="status-badge watch">Selective Use</span>
+          <span class="status-badge risk">Not Autonomous</span>
+        </div>
+      </header>
+
+      <section class="kpi-grid">
+        <article class="card kpi-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Best Full-Sample Branch</h3>
+              <p class="card-subtitle">Main broad-coverage comparison result</p>
+            </div>
+            <span class="contract-pill">I60 · OHLC</span>
+          </div>
+          <div class="card-body">
+            <div class="kpi-value">
+              <strong id="kpi-best-full-acc">0.587</strong>
+              <span class="kpi-delta up">Accuracy</span>
+            </div>
+            <div class="kpi-mini">
+              <div class="kpi-mini-item">
+                <span>Balanced Accuracy</span>
+                <strong id="kpi-best-full-balacc">0.559</strong>
+              </div>
+              <div class="kpi-mini-item">
+                <span>ROC-AUC</span>
+                <strong id="kpi-best-full-auc">0.580</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card kpi-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Best Practical Selective Rule</h3>
+              <p class="card-subtitle">Moderate low-coverage operational candidate</p>
+            </div>
+            <span class="signal-pill long">Tail Rule</span>
+          </div>
+          <div class="card-body">
+            <div class="kpi-value">
+              <strong id="kpi-tail-acc">0.688</strong>
+              <span class="kpi-delta up">Accuracy</span>
+            </div>
+            <div class="kpi-mini">
+              <div class="kpi-mini-item">
+                <span>Balanced Accuracy</span>
+                <strong id="kpi-tail-balacc">0.695</strong>
+              </div>
+              <div class="kpi-mini-item">
+                <span>Coverage</span>
+                <strong id="kpi-tail-coverage">5.1%</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card kpi-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Strict Finalist</h3>
+              <p class="card-subtitle">Very low coverage, highest retained precision</p>
+            </div>
+            <span class="contract-pill">I120</span>
+          </div>
+          <div class="card-body">
+            <div class="kpi-value">
+              <strong id="kpi-optionb-acc">0.833</strong>
+              <span class="kpi-delta up">Accuracy</span>
+            </div>
+            <div class="kpi-mini">
+              <div class="kpi-mini-item">
+                <span>Balanced Accuracy</span>
+                <strong id="kpi-optionb-balacc">0.834</strong>
+              </div>
+              <div class="kpi-mini-item">
+                <span>Coverage</span>
+                <strong id="kpi-optionb-coverage">~2.0%</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card kpi-card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Explainability Boundary</h3>
+              <p class="card-subtitle">Diagnostic aid, not proof of faithful reasoning</p>
+            </div>
+            <span class="quality-pill background">Bounded XAI</span>
+          </div>
+          <div class="card-body">
+            <div class="kpi-value">
+              <strong id="kpi-xai-note">Broad</strong>
+              <span class="kpi-delta flat">Attention pattern</span>
+            </div>
+            <div class="kpi-mini">
+              <div class="kpi-mini-item">
+                <span>Main finding</span>
+                <strong>Chart overlap exists</strong>
+              </div>
+              <div class="kpi-mini-item">
+                <span>Main caution</span>
+                <strong>Background-heavy</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid" id="models">
+        <article class="card chart-card span-8">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Full-Sample Comparison</h3>
+              <p class="card-subtitle">
+                Numeric benchmark, simple directional rule, best single-scale CNN,
+                and best multi-scale full-sample model.
+              </p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <img
+                src="assets/fig_compare_fullsample.png"
+                alt="Full-sample model comparison chart"
+                onerror="this.parentElement.innerHTML='<div class=&quot;chart-placeholder&quot;>Add fig_compare_fullsample.png to /assets</div>'"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="card table-card span-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Core Full-Sample Table</h3>
+              <p class="card-subtitle">Primary held-out comparison view</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="data-table" id="table-fullsample">
+                <thead>
+                  <tr>
+                    <th>System</th>
+                    <th>Acc.</th>
+                    <th>Bal. Acc.</th>
+                    <th>ROC-AUC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Numeric benchmark</td>
+                    <td class="metric">0.456</td>
+                    <td class="metric">0.496</td>
+                    <td class="metric">0.523</td>
+                  </tr>
+                  <tr>
+                    <td>Momentum sign</td>
+                    <td class="metric">0.522</td>
+                    <td class="metric">0.518</td>
+                    <td class="metric">—</td>
+                  </tr>
+                  <tr>
+                    <td>Single I60 OHLC</td>
+                    <td class="metric good">0.587</td>
+                    <td class="metric good">0.559</td>
+                    <td class="metric good">0.580</td>
+                  </tr>
+                  <tr>
+                    <td>Multi 20+60 rich</td>
+                    <td class="metric warn">0.475</td>
+                    <td class="metric warn">0.520</td>
+                    <td class="metric warn">0.549</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid" id="selection">
+        <article class="card chart-card span-8">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Selective Coverage vs Performance</h3>
+              <p class="card-subtitle">
+                Tail-rule tradeoff across the main selective-support families.
+              </p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <img
+                src="assets/fig_tail_tradeoff.png"
+                alt="Coverage versus performance tradeoff"
+                onerror="this.parentElement.innerHTML='<div class=&quot;chart-placeholder&quot;>Add fig_tail_tradeoff.png to /assets</div>'"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="card note-card span-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Operational Interpretation</h3>
+              <p class="card-subtitle">How the artifact should be used in practice</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="success-box">
+              <h4>Recommended use</h4>
+              <p>
+                Use the dashboard as a <strong>triage tool</strong>. Surface only extreme-score
+                cases to the analyst or trader and abstain elsewhere.
+              </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="warning-box">
+              <h4>Do not use as</h4>
+              <p>
+                A universal always-on intraday trading engine. Full-sample results are
+                bounded and the strongest evidence is selective, not universal.
+              </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="callout">
+              <h4>Best hierarchy</h4>
+              <ul>
+                <li>Best broad-coverage model: <strong>Single I60 OHLC-only</strong></li>
+                <li>Best strict selective finalist: <strong>Single I120 OHLC-only</strong></li>
+                <li>Best classical visual comparator: <strong>HOG</strong></li>
+                <li>Weak classical comparator: <strong>HAAR-like</strong></li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid" id="xai">
+        <article class="card chart-card span-7">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Grad-CAM Qualitative Panel</h3>
+              <p class="card-subtitle">
+                Trend-aligned, pivot-focused, and pre-break contextual examples.
+              </p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <img
+                src="assets/fig_gradcam_examples.png"
+                alt="Grad-CAM qualitative examples"
+                onerror="this.parentElement.innerHTML='<div class=&quot;chart-placeholder&quot;>Add fig_gradcam_examples.png to /assets</div>'"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="card note-card span-5">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">XAI Reading Rule</h3>
+              <p class="card-subtitle">What the explanation layer can and cannot support</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="note-box">
+              <h4>Supported</h4>
+              <p>
+                Grad-CAM is useful for <strong>inspection, error analysis, and chart-vs-background
+                diagnostics</strong>.
+              </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="warning-box">
+              <h4>Not supported</h4>
+              <p>
+                Claims of precise candle-level reasoning or strong proof of faithful
+                interpretability.
+              </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="detail-list">
+              <div class="detail-item">
+                <span>Observed strength</span>
+                <strong>Meaningful overlap with trend segments, pivots, and setup structure</strong>
+              </div>
+              <div class="detail-item">
+                <span>Main weakness</span>
+                <strong>Saliency remains broad and often background-dominant</strong>
+              </div>
+              <div class="detail-item">
+                <span>Defensible thesis wording</span>
+                <strong>Diagnostic usefulness, bounded explanation quality</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid" id="cases">
+        <article class="card chart-card span-8">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Validation Sequence and Label Drift</h3>
+              <p class="card-subtitle">
+                Similar-looking adjacent windows can map to different forward outcomes.
+              </p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap">
+              <img
+                src="assets/fig_val_sequence.png"
+                alt="Validation sequence and label drift"
+                onerror="this.parentElement.innerHTML='<div class=&quot;chart-placeholder&quot;>Add fig_val_sequence.png to /assets</div>'"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="card viewer-card span-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Sample Inspector</h3>
+              <p class="card-subtitle">Single-row thesis-defense case viewer</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="detail-list">
+              <div class="detail-item">
+                <span>Sample ID</span>
+                <strong id="viewer-sample-id">—</strong>
+              </div>
+              <div class="detail-item">
+                <span>Contract / Timestamp</span>
+                <strong id="viewer-contract-time">—</strong>
+              </div>
+              <div class="detail-item">
+                <span>Model / Signal</span>
+                <strong id="viewer-model-signal">—</strong>
+              </div>
+              <div class="detail-item">
+                <span>Confidence / XAI group</span>
+                <strong id="viewer-confidence-xai">—</strong>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="image-frame">
+              <img id="viewer-main-image" alt="Selected case image" />
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid">
+        <article class="card viewer-card span-12">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Case Browser</h3>
+              <p class="card-subtitle">
+                Browse retained cases by contract, split, signal, confidence, and XAI group.
+              </p>
+            </div>
+          </div>
+          <div class="card-body split-panel">
+            <div class="sample-list" id="sample-list">
+              <div class="sample-card active">
+                <div class="sample-top">
+                  <div>
+                    <div class="sample-title">Demo case placeholder</div>
+                    <div class="sample-subtitle">Replace with dashboard_master.csv rows</div>
+                  </div>
+                  <span class="conf-pill very_high">Very High</span>
+                </div>
+                <div class="sample-meta">
+                  <span class="contract-pill">SiZ5</span>
+                  <span class="split-pill">test</span>
+                  <span class="signal-pill long">long</span>
+                  <span class="quality-pill mixed">mixed</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="inspector-panel">
+              <div class="image-frame">
+                <img id="viewer-raw-image" alt="Raw chart image" />
+              </div>
+
+              <div class="image-row">
+                <div class="mini-frame">
+                  <img id="viewer-overlay-image" alt="Grad-CAM overlay image" />
+                </div>
+                <div class="mini-frame">
+                  <img id="viewer-masked-image" alt="Grad-CAM masked overlay" />
+                </div>
+                <div class="mini-frame">
+                  <img id="viewer-heatmap-image" alt="Grad-CAM heatmap" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid" id="artifact">
+        <article class="card note-card span-7">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Artifact Governance Logic</h3>
+              <p class="card-subtitle">How the system should be controlled in a real setting</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">Step 01</div>
+                <div class="timeline-content">
+                  <h4>Chronology-safe engineering</h4>
+                  <p>
+                    Build the front-contract series carefully and never mix contract chronology
+                    carelessly across sparse deferred maturities.
+                  </p>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-time">Step 02</div>
+                <div class="timeline-content">
+                  <h4>Benchmark before trust</h4>
+                  <p>
+                    Compare CNN outputs against numeric, directional, and classical visual
+                    baselines before elevating any model for operational use.
+                  </p>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-time">Step 03</div>
+                <div class="timeline-content">
+                  <h4>Selective escalation</h4>
+                  <p>
+                    Surface only the most extreme-score cases to users and abstain on the large
+                    ambiguous interior of the score distribution.
+                  </p>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-time">Step 04</div>
+                <div class="timeline-content">
+                  <h4>XAI as inspection</h4>
+                  <p>
+                    Use overlays to inspect chart-focused versus suspiciously background-heavy
+                    cases, not as proof of true economic reasoning.
+                  </p>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-time">Step 05</div>
+                <div class="timeline-content">
+                  <h4>Human-in-the-loop use</h4>
+                  <p>
+                    The artifact should support analyst judgment, not replace it.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card note-card span-5">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Defense-Safe Summary</h3>
+              <p class="card-subtitle">What you can say with confidence</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="success-box">
+              <h4>Strongest defendable statement</h4>
+              <p>
+                The artifact contributes a chronology-aware, trader-facing, selective
+                decision-support workflow with bounded but meaningful predictive and
+                diagnostic value.
+              </p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="callout">
+              <h4>Safe committee phrasing</h4>
+              <ul>
+                <li>Not a novel claim for CNNs or Grad-CAM by themselves</li>
+                <li>Not a claim of universal full-coverage forecasting power</li>
+                <li>Yes to selective support, abstention, and inspection utility</li>
+                <li>Yes to bounded and conservative explainability interpretation</li>
+              </ul>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="warning-box">
+              <h4>Do not oversell</h4>
+              <p>
+                Avoid calling it an autonomous trading system or a fully trustworthy
+                interpretable model.
+              </p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="layout-grid">
+        <article class="card span-12">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Dashboard Snapshot</h3>
+              <p class="card-subtitle">Presentation-ready thesis-defense view</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="viewer-grid">
+              <div class="image-frame">
+                <img
+                  src="assets/fig_dashboard_crop.png"
+                  alt="Dashboard crop overview"
+                  onerror="this.parentElement.innerHTML='<div class=&quot;image-placeholder&quot;>Add fig_dashboard_crop.png to /assets</div>'"
+                />
+              </div>
+              <div class="image-frame">
+                <img
+                  src="assets/fig_dashboard_crop2.png"
+                  alt="Dashboard crop details"
+                  onerror="this.parentElement.innerHTML='<div class=&quot;image-placeholder&quot;>Add fig_dashboard_crop2.png to /assets</div>'"
+                />
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footer-note">
+        <span>
+          Thesis artifact: Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images
+        </span>
+        <span class="mono">2026 defense dashboard build</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
