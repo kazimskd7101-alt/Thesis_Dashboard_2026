@@ -30,10 +30,14 @@
 
       <section class="side-block">
         <div class="side-title">Filters</div>
+
         <label class="field">
           <span>Contract</span>
-          <select id="filter-contract"><option value="all">All contracts</option></select>
+          <select id="filter-contract">
+            <option value="all">All contracts</option>
+          </select>
         </label>
+
         <label class="field">
           <span>Split</span>
           <select id="filter-split">
@@ -43,6 +47,7 @@
             <option value="test">Test</option>
           </select>
         </label>
+
         <label class="field">
           <span>Signal</span>
           <select id="filter-signal">
@@ -52,6 +57,7 @@
             <option value="watch">Watch</option>
           </select>
         </label>
+
         <label class="field">
           <span>Confidence</span>
           <select id="filter-confidence">
@@ -62,6 +68,7 @@
             <option value="low">Low</option>
           </select>
         </label>
+
         <label class="field">
           <span>XAI quality</span>
           <select id="filter-xai">
@@ -71,14 +78,17 @@
             <option value="background-heavy">Background-heavy</option>
           </select>
         </label>
+
         <label class="field">
           <span>Date</span>
           <input id="filter-date" type="date" />
         </label>
+
         <label class="field">
           <span>Search</span>
           <input id="filter-search" type="search" placeholder="SiU5 2025-09-11 07:00" />
         </label>
+
         <div class="button-row">
           <button id="apply-filters" class="btn btn-primary">Apply</button>
           <button id="reset-filters" class="btn btn-secondary">Reset</button>
@@ -97,10 +107,11 @@
           <div class="eyebrow">Intraday Decision Support for Traders</div>
           <h2>Selective CNN-based directional support, built for inspection instead of blind automation.</h2>
           <p>
-            This desk prioritizes surfaced cases, shows the evidence behind them, and keeps confidence, XAI quality,
-            and coverage tradeoffs visible at the same time.
+            This desk prioritizes surfaced cases, shows the evidence behind them, and keeps confidence,
+            explainability quality, and coverage tradeoffs visible at the same time.
           </p>
         </div>
+
         <div class="hero-status">
           <div class="status-pill live">Artifact Ready</div>
           <div class="status-pill selective">Selective Use</div>
@@ -114,25 +125,28 @@
           <div class="metric-value" id="kpi-best-full">0.587</div>
           <div class="metric-meta">
             <span>I60 OHLC</span>
-            <span>Acc.</span>
+            <span>Accuracy</span>
           </div>
         </article>
+
         <article class="metric-card">
           <div class="metric-label">Best practical selective rule</div>
           <div class="metric-value" id="kpi-best-tail">0.688</div>
           <div class="metric-meta">
             <span>5.1% coverage</span>
-            <span>Acc.</span>
+            <span>Accuracy</span>
           </div>
         </article>
+
         <article class="metric-card">
           <div class="metric-label">Strict finalist</div>
           <div class="metric-value" id="kpi-best-strict">0.833</div>
           <div class="metric-meta">
             <span>I120</span>
-            <span>Acc.</span>
+            <span>Accuracy</span>
           </div>
         </article>
+
         <article class="metric-card">
           <div class="metric-label">Current filtered queue</div>
           <div class="metric-value" id="kpi-queue-size">0</div>
@@ -151,7 +165,7 @@
               <p>Ranked surfaced cases for analyst review.</p>
             </div>
             <div class="pill-row">
-              <span class="mini-pill" id="queue-summary-pill">0 cases</span>
+              <span class="mini-pill" id="queue-summary-pill">0 surfaced cases</span>
             </div>
           </div>
           <div id="queue-list" class="queue-list"></div>
@@ -189,10 +203,14 @@
                 <button class="tab" data-view="masked">Masked</button>
                 <button class="tab" data-view="heat">Heat</button>
               </div>
+
               <div class="viewer-stage">
                 <img id="main-image" alt="Selected chart view" />
-                <div class="image-empty" id="main-image-empty">No image available yet. Upload the corresponding PNG/JPG into the expected assets folder.</div>
+                <div class="image-empty" id="main-image-empty">
+                  No image available yet. Upload the corresponding PNG files into the expected assets folders.
+                </div>
               </div>
+
               <div class="thumb-row">
                 <button class="thumb-card active" data-view="raw">
                   <img id="thumb-raw" alt="Raw chart thumbnail" />
@@ -218,18 +236,22 @@
                 <div class="evidence-label">P(up)</div>
                 <div class="evidence-value mono" id="evidence-prob">—</div>
               </div>
+
               <div class="evidence-card">
                 <div class="evidence-label">Forward return</div>
                 <div class="evidence-value mono" id="evidence-fwd">—</div>
               </div>
+
               <div class="evidence-card">
                 <div class="evidence-label">Correct?</div>
                 <div class="evidence-value mono" id="evidence-correct">—</div>
               </div>
+
               <div class="evidence-card">
                 <div class="evidence-label">Error type</div>
                 <div class="evidence-value mono" id="evidence-error">—</div>
               </div>
+
               <div class="evidence-card wide">
                 <div class="evidence-label">XAI allocation</div>
                 <div class="bar-duo">
@@ -245,6 +267,7 @@
                   </div>
                 </div>
               </div>
+
               <div class="evidence-card wide">
                 <div class="evidence-label">Decision note</div>
                 <div class="decision-note" id="decision-note">Select a case to see the operating recommendation.</div>
