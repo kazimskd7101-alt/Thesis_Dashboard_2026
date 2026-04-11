@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trader Decision Support Studio | MOEX Si</title>
+  <meta name="description" content="Selective intraday decision support dashboard for MOEX Si futures." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>Decision Support Studio</h1>
+          <p>MOEX Si Futures · Selective support artifact</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a href="#desk" class="nav-link active">Desk</a>
+        <a href="#queue" class="nav-link">Signal Queue</a>
+        <a href="#analytics" class="nav-link">Analytics</a>
+        <a href="#xai" class="nav-link">XAI</a>
+      </nav>
+
+      <section class="side-block">
+        <div class="side-title">Filters</div>
+        <label class="field">
+          <span>Contract</span>
+          <select id="filter-contract"><option value="all">All contracts</option></select>
+        </label>
+        <label class="field">
+          <span>Split</span>
+          <select id="filter-split">
+            <option value="all">All splits</option>
+            <option value="train">Train</option>
+            <option value="val">Validation</option>
+            <option value="test">Test</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Signal</span>
+          <select id="filter-signal">
+            <option value="all">All signals</option>
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+            <option value="watch">Watch</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Confidence</span>
+          <select id="filter-confidence">
+            <option value="all">All confidence</option>
+            <option value="very_high">Very high</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>XAI quality</span>
+          <select id="filter-xai">
+            <option value="all">All groups</option>
+            <option value="chart-led">Chart-led</option>
+            <option value="mixed">Mixed</option>
+            <option value="background-heavy">Background-heavy</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Date</span>
+          <input id="filter-date" type="date" />
+        </label>
+        <label class="field">
+          <span>Search</span>
+          <input id="filter-search" type="search" placeholder="SiU5 2025-09-11 07:00" />
+        </label>
+        <div class="button-row">
+          <button id="apply-filters" class="btn btn-primary">Apply</button>
+          <button id="reset-filters" class="btn btn-secondary">Reset</button>
+        </div>
+      </section>
+
+      <section class="side-block compact">
+        <div class="side-title">Operating rule</div>
+        <p>Surface only extreme-score cases. Treat medium-confidence, background-heavy cases as review-only or abstain.</p>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section class="hero" id="desk">
+        <div class="hero-copy">
+          <div class="eyebrow">Intraday Decision Support for Traders</div>
+          <h2>Selective CNN-based directional support, built for inspection instead of blind automation.</h2>
+          <p>
+            This desk prioritizes surfaced cases, shows the evidence behind them, and keeps confidence, XAI quality,
+            and coverage tradeoffs visible at the same time.
+          </p>
+        </div>
+        <div class="hero-status">
+          <div class="status-pill live">Artifact Ready</div>
+          <div class="status-pill selective">Selective Use</div>
+          <div class="status-pill guarded">Human-in-the-loop</div>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="metric-card">
+          <div class="metric-label">Best full-sample branch</div>
+          <div class="metric-value" id="kpi-best-full">0.587</div>
+          <div class="metric-meta">
+            <span>I60 OHLC</span>
+            <span>Acc.</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-label">Best practical selective rule</div>
+          <div class="metric-value" id="kpi-best-tail">0.688</div>
+          <div class="metric-meta">
+            <span>5.1% coverage</span>
+            <span>Acc.</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-label">Strict finalist</div>
+          <div class="metric-value" id="kpi-best-strict">0.833</div>
+          <div class="metric-meta">
+            <span>I120</span>
+            <span>Acc.</span>
+          </div>
+        </article>
+        <article class="metric-card">
+          <div class="metric-label">Current filtered queue</div>
+          <div class="metric-value" id="kpi-queue-size">0</div>
+          <div class="metric-meta">
+            <span>Surfaced cases</span>
+            <span>Live</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="desk-grid">
+        <article class="panel queue-panel" id="queue">
+          <div class="panel-head">
+            <div>
+              <h3>Signal queue</h3>
+              <p>Ranked surfaced cases for analyst review.</p>
+            </div>
+            <div class="pill-row">
+              <span class="mini-pill" id="queue-summary-pill">0 cases</span>
+            </div>
+          </div>
+          <div id="queue-list" class="queue-list"></div>
+        </article>
+
+        <article class="panel studio-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Decision studio</h3>
+              <p>Inspect one surfaced case across raw, overlay, masked, and heat views.</p>
+            </div>
+            <div class="case-action" id="case-action-pill">Awaiting selection</div>
+          </div>
+
+          <div class="studio-top">
+            <div class="selected-case">
+              <div class="selected-title" id="selected-title">No case selected</div>
+              <div class="selected-subtitle" id="selected-subtitle">Apply filters or choose a surfaced case from the queue.</div>
+            </div>
+
+            <div class="chip-strip">
+              <span class="chip" id="chip-contract">Contract</span>
+              <span class="chip" id="chip-split">Split</span>
+              <span class="chip" id="chip-signal">Signal</span>
+              <span class="chip" id="chip-confidence">Confidence</span>
+              <span class="chip" id="chip-xai">XAI</span>
+            </div>
+          </div>
+
+          <div class="studio-content">
+            <div class="viewer-stack">
+              <div class="viewer-tabs">
+                <button class="tab active" data-view="raw">Raw</button>
+                <button class="tab" data-view="overlay">Overlay</button>
+                <button class="tab" data-view="masked">Masked</button>
+                <button class="tab" data-view="heat">Heat</button>
+              </div>
+              <div class="viewer-stage">
+                <img id="main-image" alt="Selected chart view" />
+                <div class="image-empty" id="main-image-empty">No image available yet. Upload the corresponding PNG/JPG into the expected assets folder.</div>
+              </div>
+              <div class="thumb-row">
+                <button class="thumb-card active" data-view="raw">
+                  <img id="thumb-raw" alt="Raw chart thumbnail" />
+                  <span>Raw</span>
+                </button>
+                <button class="thumb-card" data-view="overlay">
+                  <img id="thumb-overlay" alt="Overlay thumbnail" />
+                  <span>Overlay</span>
+                </button>
+                <button class="thumb-card" data-view="masked">
+                  <img id="thumb-masked" alt="Masked thumbnail" />
+                  <span>Masked</span>
+                </button>
+                <button class="thumb-card" data-view="heat">
+                  <img id="thumb-heat" alt="Heat thumbnail" />
+                  <span>Heat</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="evidence-grid">
+              <div class="evidence-card">
+                <div class="evidence-label">P(up)</div>
+                <div class="evidence-value mono" id="evidence-prob">—</div>
+              </div>
+              <div class="evidence-card">
+                <div class="evidence-label">Forward return</div>
+                <div class="evidence-value mono" id="evidence-fwd">—</div>
+              </div>
+              <div class="evidence-card">
+                <div class="evidence-label">Correct?</div>
+                <div class="evidence-value mono" id="evidence-correct">—</div>
+              </div>
+              <div class="evidence-card">
+                <div class="evidence-label">Error type</div>
+                <div class="evidence-value mono" id="evidence-error">—</div>
+              </div>
+              <div class="evidence-card wide">
+                <div class="evidence-label">XAI allocation</div>
+                <div class="bar-duo">
+                  <div class="duo-bar">
+                    <div class="duo-label">Foreground</div>
+                    <div class="duo-track"><span id="fg-bar"></span></div>
+                    <div class="duo-value mono" id="evidence-fg">—</div>
+                  </div>
+                  <div class="duo-bar">
+                    <div class="duo-label">Background</div>
+                    <div class="duo-track"><span id="bg-bar"></span></div>
+                    <div class="duo-value mono" id="evidence-bg">—</div>
+                  </div>
+                </div>
+              </div>
+              <div class="evidence-card wide">
+                <div class="evidence-label">Decision note</div>
+                <div class="decision-note" id="decision-note">Select a case to see the operating recommendation.</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="analytics-grid" id="analytics">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Full-sample benchmark ladder</h3>
+              <p>Balanced accuracy and ROC-AUC across the main families.</p>
+            </div>
+          </div>
+          <canvas id="chart-fullsample"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Selective coverage frontier</h3>
+              <p>Coverage versus balanced accuracy for the main tail-rule families.</p>
+            </div>
+          </div>
+          <canvas id="chart-tail"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>XAI foreground vs background</h3>
+              <p>Selected-set explanation balance across retained finalists.</p>
+            </div>
+          </div>
+          <canvas id="chart-xai"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Queue composition</h3>
+              <p>Confidence, signal, and explainability quality in the filtered desk view.</p>
+            </div>
+          </div>
+          <canvas id="chart-queue"></canvas>
+        </article>
+      </section>
+
+      <section class="governance-grid" id="xai">
+        <article class="panel compact-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Operational stance</h3>
+              <p>How to use the desk in defense or practice.</p>
+            </div>
+          </div>
+          <div class="rule-list">
+            <div class="rule-card">
+              <h4>Use for triage</h4>
+              <p>Let the desk surface unusual cases. Review them visually before trusting the signal.</p>
+            </div>
+            <div class="rule-card">
+              <h4>Prefer selective support</h4>
+              <p>The strongest evidence is in the tails, not in universal full-coverage classification.</p>
+            </div>
+            <div class="rule-card">
+              <h4>Use XAI as inspection</h4>
+              <p>Meaningful overlap exists, but background-heavy cases still require caution.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel compact-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Evidence hierarchy</h3>
+              <p>Best-supported thesis takeaways.</p>
+            </div>
+          </div>
+          <div class="evidence-stack">
+            <div class="stack-item">
+              <strong>Best broad-coverage branch</strong>
+              <span>Single I60 OHLC-only</span>
+            </div>
+            <div class="stack-item">
+              <strong>Best strict finalist</strong>
+              <span>Single I120 OHLC-only</span>
+            </div>
+            <div class="stack-item">
+              <strong>Best classical comparator</strong>
+              <span>HOG I120 OHLC-only</span>
+            </div>
+            <div class="stack-item">
+              <strong>Most honest XAI claim</strong>
+              <span>Useful diagnostic layer, not proof of faithful reasoning</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <span>Decision Support Studio · rebuilt for a denser operator workflow</span>
+        <span class="mono">data/ + assets/ + app.js</span>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
