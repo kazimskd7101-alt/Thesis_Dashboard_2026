@@ -32,8 +32,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 function bindUI() {
-  document.getElementById("apply-filters").addEventListener("click", applyFilters);
-  document.getElementById("reset-filters").addEventListener("click", resetFilters);
+  const applyBtn = document.getElementById("apply-filters");
+  const resetBtn = document.getElementById("reset-filters");
+
+  if (applyBtn) applyBtn.addEventListener("click", applyFilters);
+  if (resetBtn) resetBtn.addEventListener("click", resetFilters);
 
   document.querySelectorAll(".tab, .thumb-card").forEach(btn => {
     btn.addEventListener("click", () => setView(btn.dataset.view));
@@ -52,6 +55,7 @@ async function loadData() {
   const loaded = await Promise.all(
     entries.map(async ([key, path]) => [key, await loadCSV(path)])
   );
+
   loaded.forEach(([key, rows]) => {
     state.data[key] = rows;
   });
@@ -63,6 +67,7 @@ function loadCSV(path) {
       download: true,
       header: true,
       skipEmptyLines: true,
+      dynamicTyping: false,
       complete: results => resolve(results.data || []),
       error: () => resolve([])
     });
@@ -71,38 +76,87 @@ function loadCSV(path) {
 
 function buildRows() {
   const rawMap = {};
-  [...(state.data.rawIndexTest || []), ...(state.data.rawIndexTrain || []), ...(state.data.rawIndexVal || [])]
-    .forEach(r => {
-      rawMap[String(getAny(r, ["sample_id", "id", "idx", "index"]))] = r;
-    });
+
+  [
+    ...(state.data.rawIndexTest || []),
+    ...(state.data.rawIndexTrain || []),
+    ...(state.data.rawIndexVal || [])
+  ].forEach(r => {
+    const sid = sampleIdFromRow(r);
+    if (sid) rawMap[sid] = r;
+  });
 
   const gradMap = {};
   (state.data.gradcamIndex || []).forEach(r => {
-    gradMap[String(getAny(r, ["sample_id", "id", "idx", "index"]))] = r;
+    const sid = sampleIdFromRow(r);
+    if (sid) gradMap[sid] = r;
   });
 
   state.rows = (state.data.dashboard || []).map((r, idx) => {
-    const sampleId = String(getAny(r, ["sample_id", "id", "idx", "index"]) || idx);
+    const sampleId = sampleIdFromRow(r) || String(idx);
     const raw = rawMap[sampleId] || {};
     const grad = gradMap[sampleId] || {};
 
-    const split = normalizeSplit(getAny(r, ["split", "dataset_split", "set"]) || getAny(raw, ["split", "dataset_split", "set"]) || "test");
-    const confidence = normalizeConfidence(getAny(r, ["confidence_bucket", "cnn_confidence", "confidence"]));
-    const signal = normalizeSignal(getAny(r, ["signal_bucket", "signal"]), getAny(r, ["cnn_pred", "pred", "prediction"]), getAny(r, ["cnn_p_up", "p_up", "prob_up"]));
-    const xai = normalizeXai(getAny(r, ["xai_quality_bucket", "xai_group"]), getAny(r, ["heat_on_foreground", "foreground_heat"]), getAny(r, ["heat_on_background", "background_heat"]));
+    const split = normalizeSplit(
+      getAny(r, ["split", "dataset_split", "set"]) ||
+      getAny(raw, ["split", "dataset_split", "set"]) ||
+      "test"
+    );
+
     const pUp = number(getAny(r, ["cnn_p_up", "p_up", "prob_up"]));
-    const fg = number(getAny(r, ["heat_on_foreground", "foreground_heat"]));
-    const bg = number(getAny(r, ["heat_on_background", "background_heat"]));
+    const pred = number(getAny(r, ["cnn_pred", "pred", "prediction", "y_pred"]));
+    const confidence = normalizeConfidence(
+      getAny(r, ["confidence_bucket", "cnn_confidence", "confidence"]),
+      pUp
+    );
+    const signal = normalizeSignal(
+      getAny(r, ["signal_bucket", "signal"]),
+      pred,
+      pUp
+    );
+    const fg = number(getAny(r, ["heat_on_foreground", "foreground_heat", "chart_share"]));
+    const bg = number(getAny(r, ["heat_on_background", "background_heat", "background_share"]));
+    const xai = normalizeXai(
+      getAny(r, ["xai_quality_bucket", "xai_group", "focus_group"]),
+      fg,
+      bg
+    );
+
+    const rawSrc = resolveRawImageBySplit(
+      getAny(r, ["image_path", "raw_image_path"]),
+      getAny(raw, ["file", "image_file", "image_path"]),
+      split,
+      getAny(grad, ["file_stem", "stem"])
+    );
+
+    const overlaySrc = resolveGradcamImage(
+      getAny(r, ["gradcam_raw_path", "overlay_path"]),
+      getAny(grad, ["file_stem", "stem", "file", "filename"]),
+      "overlay"
+    );
+
+    const maskedSrc = resolveGradcamImage(
+      getAny(r, ["gradcam_masked_path", "masked_overlay_path"]),
+      getAny(grad, ["file_stem", "stem", "file", "filename"]),
+      "masked"
+    );
+
+    const heatSrc = resolveGradcamImage(
+      getAny(r, ["gradcam_heat_path", "heatmap_path"]),
+      getAny(grad, ["file_stem", "stem", "file", "filename"]),
+      "heat"
+    );
 
     return {
       sampleId,
       contract: getAny(r, ["contract", "secid", "symbol"]) || getAny(raw, ["contract", "secid", "symbol"]) || "NA",
       split,
       anchorTime: getAny(r, ["anchor_time", "timestamp", "anchor_ts"]) || getAny(raw, ["anchor_ts", "timestamp"]) || "",
-      tradeDate: getAny(r, ["trade_date", "date"]) || extractDate(getAny(r, ["anchor_time", "timestamp", "anchor_ts"])),
-      labelUp: number(getAny(r, ["label_20", "label", "y_true"])),
+      tradeDate: getAny(r, ["trade_date", "date"]) || extractDate(getAny(r, ["anchor_time", "timestamp", "anchor_ts"])) || extractDate(getAny(raw, ["anchor_ts", "timestamp"])),
+      labelUp: number(getAny(r, ["label_20", "label", "label_up", "y_true"])),
       forwardReturn: number(getAny(r, ["forward_return_20", "forward_return"]) || getAny(raw, ["forward_return"])),
       pUp,
+      pred,
       confidence,
       signal,
       xai,
@@ -111,32 +165,36 @@ function buildRows() {
       show: parseTruth(getAny(r, ["show_in_dashboard"])) !== false,
       fg,
       bg,
-
-      rawSrc: resolveRawImageBySplit(
-        getAny(r, ["image_path", "raw_image_path"]),
-        getAny(raw, ["file", "image_path"]),
-        split
-      ),
-
-      overlaySrc: resolveGradcamImage(
-        getAny(r, ["gradcam_raw_path", "overlay_path"]),
-        getAny(grad, ["file", "filename"]),
-        "overlay"
-      ),
-
-      maskedSrc: resolveGradcamImage(
-        getAny(r, ["gradcam_masked_path", "masked_overlay_path"]),
-        getAny(grad, ["file", "filename"]),
-        "masked"
-      ),
-
-      heatSrc: resolveGradcamImage(
-        getAny(r, ["gradcam_heat_path", "heatmap_path"]),
-        getAny(grad, ["file", "filename"]),
-        "heat"
-      )
+      rawSrc,
+      overlaySrc,
+      maskedSrc,
+      heatSrc
     };
   }).sort(defaultSort);
+}
+
+function sampleIdFromRow(r) {
+  const candidates = [
+    getAny(r, ["sample_id", "id", "idx", "index"])
+  ];
+  const direct = candidates.find(v => v !== "" && v !== null && v !== undefined);
+  if (direct !== undefined && direct !== null && direct !== "") {
+    return String(normalizeId(direct));
+  }
+
+  const fileStem = getAny(r, ["file_stem", "stem"]);
+  if (fileStem) return String(fileStem).split("_")[0];
+
+  const fileName = getAny(r, ["file", "filename", "image_path"]);
+  if (fileName) return basename(fileName).split("_")[0];
+
+  return "";
+}
+
+function normalizeId(v) {
+  const n = Number(v);
+  if (Number.isFinite(n)) return Math.trunc(n);
+  return String(v).trim();
 }
 
 function defaultSort(a, b) {
@@ -148,12 +206,20 @@ function defaultSort(a, b) {
   const xa = xaiRank(a.xai) - xaiRank(b.xai);
   if (xa !== 0) return xa;
 
-  return (number(b.pUp) || 0) - (number(a.pUp) || 0);
+  const edgeA = Number.isFinite(a.pUp) ? Math.abs(a.pUp - 0.5) : -1;
+  const edgeB = Number.isFinite(b.pUp) ? Math.abs(b.pUp - 0.5) : -1;
+  if (edgeB !== edgeA) return edgeB - edgeA;
+
+  return String(b.anchorTime || "").localeCompare(String(a.anchorTime || ""));
 }
 
 function populateContractFilter() {
   const sel = document.getElementById("filter-contract");
+  if (!sel) return;
+
+  const existing = new Set(Array.from(sel.options).map(o => o.value));
   [...new Set(state.rows.map(r => r.contract).filter(Boolean))].sort().forEach(contract => {
+    if (existing.has(contract)) return;
     const opt = document.createElement("option");
     opt.value = contract;
     opt.textContent = contract;
@@ -163,18 +229,27 @@ function populateContractFilter() {
 
 function updateStaticMetrics() {
   const cmp = state.data.compare || [];
-  const best = cmp.find(r => String(getAny(r, ["system", "model", "source"])).toLowerCase().includes("best_single")) || cmp[2];
+
+  const best = cmp.find(r => {
+    const s = String(getAny(r, ["system", "model", "source"])).toLowerCase();
+    return s.includes("best_single") || s.includes("single_i60");
+  }) || cmp[0];
+
   setText("kpi-best-full", formatMetric(getAny(best || {}, ["accuracy", "acc"]), 3, "0.587"));
 
-  const tail = (state.data.tail || []).find(r =>
-    String(getAny(r, ["source", "system"])).includes("single_I60") &&
-    String(getAny(r, ["tail_q_each_side", "q"])) === "0.025"
-  );
+  const tail = (state.data.tail || []).find(r => {
+    const s = String(getAny(r, ["source", "system"])).toLowerCase();
+    const q = String(getAny(r, ["tail_q_each_side", "q", "quantile"]));
+    return s.includes("single_i60") && (q === "0.025" || q === "0.0250");
+  }) || (state.data.tail || [])[0];
+
   setText("kpi-best-tail", formatMetric(getAny(tail || {}, ["accuracy", "acc"]), 3, "0.688"));
 
-  const strict = (state.data.finalists || []).find(r =>
-    String(getAny(r, ["source", "system"])).includes("single_I120")
-  ) || (state.data.finalists || [])[0];
+  const strict = (state.data.finalists || []).find(r => {
+    const s = String(getAny(r, ["source", "system"])).toLowerCase();
+    return s.includes("single_i120");
+  }) || (state.data.finalists || [])[0];
+
   setText("kpi-best-strict", formatMetric(getAny(strict || {}, ["accuracy", "acc"]), 3, "0.833"));
 }
 
@@ -223,15 +298,23 @@ function applyFilters() {
 
 function resetFilters() {
   ["filter-contract", "filter-split", "filter-signal", "filter-confidence", "filter-xai"]
-    .forEach(id => { document.getElementById(id).value = "all"; });
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "all";
+    });
 
-  document.getElementById("filter-date").value = "";
-  document.getElementById("filter-search").value = "";
+  const dateEl = document.getElementById("filter-date");
+  const searchEl = document.getElementById("filter-search");
+  if (dateEl) dateEl.value = "";
+  if (searchEl) searchEl.value = "";
+
   applyFilters();
 }
 
 function renderQueue() {
   const el = document.getElementById("queue-list");
+  if (!el) return;
+
   el.innerHTML = "";
 
   if (!state.filtered.length) {
@@ -288,8 +371,11 @@ function renderStudio() {
     ["chip-contract", "chip-split", "chip-signal", "chip-confidence", "chip-xai"].forEach(id => setText(id, "—"));
     ["evidence-prob", "evidence-fwd", "evidence-correct", "evidence-error", "evidence-fg", "evidence-bg"].forEach(id => setText(id, "—"));
     setText("decision-note", "No decision note available.");
-    document.getElementById("case-action-pill").textContent = "Awaiting selection";
-    document.getElementById("case-action-pill").className = "case-action";
+    const actionEl = document.getElementById("case-action-pill");
+    if (actionEl) {
+      actionEl.textContent = "Awaiting selection";
+      actionEl.className = "case-action";
+    }
     updateMainImage("");
     updateThumb("thumb-raw", "");
     updateThumb("thumb-overlay", "");
@@ -320,15 +406,30 @@ function renderStudio() {
 
   const action = recommendAction(r);
   const actionEl = document.getElementById("case-action-pill");
-  actionEl.textContent = action.label;
-  actionEl.className = `case-action ${action.kind}`;
+  if (actionEl) {
+    actionEl.textContent = action.label;
+    actionEl.className = `case-action ${action.kind}`;
+  }
   setText("decision-note", action.note);
 
   updateThumb("thumb-raw", r.rawSrc);
   updateThumb("thumb-overlay", r.overlaySrc);
   updateThumb("thumb-masked", r.maskedSrc);
   updateThumb("thumb-heat", r.heatSrc);
-  setView(state.view);
+
+  const bestView = chooseAvailableView(r, state.view);
+  setView(bestView);
+}
+
+function chooseAvailableView(row, preferred) {
+  const options = {
+    raw: row.rawSrc,
+    overlay: row.overlaySrc,
+    masked: row.maskedSrc,
+    heat: row.heatSrc
+  };
+  if (options[preferred]) return preferred;
+  return ["raw", "overlay", "masked", "heat"].find(v => options[v]) || "raw";
 }
 
 function setView(view) {
@@ -360,12 +461,13 @@ function setView(view) {
 function updateMainImage(src) {
   const img = document.getElementById("main-image");
   const empty = document.getElementById("main-image-empty");
+  if (!img || !empty) return;
 
   if (!src) {
     img.style.display = "none";
     img.removeAttribute("src");
     empty.style.display = "grid";
-    empty.textContent = "No image available yet. Upload the corresponding PNG files into the expected assets folders.";
+    empty.textContent = "No image available for this view.";
     return;
   }
 
@@ -417,7 +519,10 @@ function renderFullSampleChart() {
     auc: number(getAny(r, ["roc_auc", "auc"]))
   })).filter(r => Number.isFinite(r.bal) || Number.isFinite(r.auc));
 
-  state.charts.full = new Chart(document.getElementById("chart-fullsample"), {
+  const canvas = document.getElementById("chart-fullsample");
+  if (!canvas || !rows.length) return;
+
+  state.charts.full = new Chart(canvas, {
     type: "bar",
     data: {
       labels: rows.map(r => r.label),
@@ -455,7 +560,10 @@ function renderTailChart() {
   })).filter(r => Number.isFinite(r.x) && Number.isFinite(r.y))
     .map(r => ({ ...r, x: r.x * 100 }));
 
-  state.charts.tail = new Chart(document.getElementById("chart-tail"), {
+  const canvas = document.getElementById("chart-tail");
+  if (!canvas) return;
+
+  state.charts.tail = new Chart(canvas, {
     type: "scatter",
     data: {
       datasets: [
@@ -491,42 +599,48 @@ function renderTailChart() {
 }
 
 function renderXaiChart() {
-  const detail = state.data.xaiDetail || [];
   let summaryRows = [];
+
+  const detail = state.data.xaiDetail || [];
+  const summary = state.data.xaiSummary || [];
 
   if (detail.length) {
     const groups = {};
     detail.forEach(r => {
       const key = normalizeXai(
         getAny(r, ["focus_group", "xai_group"]),
-        getAny(r, ["foreground_heat", "heat_on_foreground"]),
-        getAny(r, ["background_heat", "heat_on_background"])
+        getAny(r, ["foreground_heat", "heat_on_foreground", "chart_share"]),
+        getAny(r, ["background_heat", "heat_on_background", "background_share"])
       );
 
       if (!groups[key]) groups[key] = { key, n: 0, fg: 0, bg: 0 };
+
       groups[key].n += 1;
-      groups[key].fg += number(getAny(r, ["foreground_heat", "heat_on_foreground"])) || 0;
-      groups[key].bg += number(getAny(r, ["background_heat", "heat_on_background"])) || 0;
+      groups[key].fg += number(getAny(r, ["foreground_heat", "heat_on_foreground", "chart_share"])) || 0;
+      groups[key].bg += number(getAny(r, ["background_heat", "heat_on_background", "background_share"])) || 0;
     });
 
     summaryRows = Object.values(groups).map(g => ({
       label: prettyXai(g.key),
-      fg: g.fg / g.n,
-      bg: g.bg / g.n
+      fg: g.n ? g.fg / g.n : 0,
+      bg: g.n ? g.bg / g.n : 0
     }));
-  } else {
-    summaryRows = (state.data.xaiSummary || []).map(r => ({
+  } else if (summary.length) {
+    summaryRows = summary.map(r => ({
       label: prettyXai(normalizeXai(
         getAny(r, ["focus_group", "xai_group"]),
-        getAny(r, ["avg_fg_heat", "foreground_heat"]),
-        getAny(r, ["avg_bg_heat", "background_heat"])
+        getAny(r, ["avg_fg_heat", "foreground_heat", "heat_on_foreground"]),
+        getAny(r, ["avg_bg_heat", "background_heat", "heat_on_background"])
       )),
-      fg: number(getAny(r, ["avg_fg_heat", "foreground_heat"])),
-      bg: number(getAny(r, ["avg_bg_heat", "background_heat"]))
-    }));
+      fg: number(getAny(r, ["avg_fg_heat", "foreground_heat", "heat_on_foreground"])),
+      bg: number(getAny(r, ["avg_bg_heat", "background_heat", "heat_on_background"]))
+    })).filter(r => Number.isFinite(r.fg) || Number.isFinite(r.bg));
   }
 
-  state.charts.xai = new Chart(document.getElementById("chart-xai"), {
+  const canvas = document.getElementById("chart-xai");
+  if (!canvas || !summaryRows.length) return;
+
+  state.charts.xai = new Chart(canvas, {
     type: "bar",
     data: {
       labels: summaryRows.map(r => r.label),
@@ -551,13 +665,16 @@ function renderXaiChart() {
 
 function renderQueueChart() {
   const confs = ["very_high", "high", "medium", "low"];
-  const counts = confs.map(c => state.filtered.filter(r => r.confidence === c).length);
-  const signals = ["long", "short", "watch"].map(s => state.filtered.filter(r => r.signal === s).length);
+  const confCounts = confs.map(c => state.filtered.filter(r => r.confidence === c).length);
+  const signalCounts = ["long", "short", "watch"].map(s => state.filtered.filter(r => r.signal === s).length);
 
-  const all = [...counts, ...signals];
+  const all = [...confCounts, ...signalCounts];
   const top = Math.max(5, ...all) + 2;
 
-  state.charts.queue = new Chart(document.getElementById("chart-queue"), {
+  const canvas = document.getElementById("chart-queue");
+  if (!canvas) return;
+
+  state.charts.queue = new Chart(canvas, {
     type: "bar",
     data: {
       labels: ["Very high", "High", "Medium", "Low", "Long", "Short", "Watch"],
@@ -655,9 +772,10 @@ function recommendAction(row) {
     (row.xai === "chart-led" || row.xai === "mixed")
   ) {
     return {
-      label: row.signal === "short" ? "High-priority short review" :
-             row.signal === "long" ? "High-priority long review" :
-             "High-priority review",
+      label:
+        row.signal === "short" ? "High-priority short review" :
+        row.signal === "long" ? "High-priority long review" :
+        "High-priority review",
       kind: row.signal,
       note: `Surface this case to the analyst queue. Confidence is ${prettyConfidence(row.confidence).toLowerCase()} and XAI is ${prettyXai(row.xai).toLowerCase()}. Use the overlay to verify whether the highlighted region follows the price path rather than broad background structure.`
     };
@@ -678,22 +796,36 @@ function recommendAction(row) {
   };
 }
 
-function resolveRawImageBySplit(pathValue, fileValue, splitValue) {
-  const file = basename(pathValue) || basename(fileValue) || "";
+function resolveRawImageBySplit(pathValue, fileValue, splitValue, gradStem = "") {
+  const full = normalizeAssetPath(String(pathValue || "").trim(), "raw");
+  if (full && full.startsWith("assets/")) return full;
+
+  let file = basename(pathValue) || basename(fileValue) || "";
+  if (!file && gradStem) {
+    file = ensurePng(gradStem);
+  }
   if (!file) return "";
 
+  const encoded = encodeURIComponent(file);
+
   if (splitValue === "test") {
-    return `assets/raw/test raw images/${encodeURIComponent(file)}`;
+    return `assets/raw/test_raw_images/${encoded}`;
   }
   if (splitValue === "val" || splitValue === "validation") {
-    return `assets/raw/val raw images/${encodeURIComponent(file)}`;
+    return `assets/raw/val_raw_images/${encoded}`;
   }
-  return `assets/raw/train raw images/${encodeURIComponent(file)}`;
+  return `assets/raw/train_raw_images/${encoded}`;
 }
 
 function resolveGradcamImage(pathValue, fileValue, kind) {
-  const file = basename(pathValue) || basename(fileValue) || "";
+  const full = normalizeAssetPath(String(pathValue || "").trim(), kind);
+  if (full && full.startsWith("assets/")) return full;
+
+  let file = basename(pathValue) || basename(fileValue) || "";
   if (!file) return "";
+
+  file = ensurePng(file);
+  const encoded = encodeURIComponent(file);
 
   const dir = kind === "overlay"
     ? "assets/gradcam/overlay"
@@ -701,16 +833,49 @@ function resolveGradcamImage(pathValue, fileValue, kind) {
       ? "assets/gradcam/masked"
       : "assets/gradcam/heat";
 
-  return `${dir}/${encodeURIComponent(file)}`;
+  return `${dir}/${encoded}`;
+}
+
+function normalizeAssetPath(path, kind = "") {
+  if (!path) return "";
+
+  let p = String(path).replaceAll("\\", "/").trim();
+
+  // Raw image directory normalization
+  p = p.replace("assets/raw/test raw images/", "assets/raw/test_raw_images/");
+  p = p.replace("assets/raw/train raw images/", "assets/raw/train_raw_images/");
+  p = p.replace("assets/raw/val raw images/", "assets/raw/val_raw_images/");
+
+  // Grad-CAM directory normalization
+  p = p.replace("assets/gradcam/test_gradcam_overlay/", "assets/gradcam/overlay/");
+  p = p.replace("assets/gradcam/test_gradcam_masked_overlay/", "assets/gradcam/masked/");
+  p = p.replace("assets/gradcam/test_gradcam_heatmap/", "assets/gradcam/heat/");
+
+  // If only basename supplied, route to correct dir
+  if (!p.includes("/") && p) {
+    const file = ensurePng(p);
+    if (kind === "overlay") return `assets/gradcam/overlay/${encodeURIComponent(file)}`;
+    if (kind === "masked") return `assets/gradcam/masked/${encodeURIComponent(file)}`;
+    if (kind === "heat") return `assets/gradcam/heat/${encodeURIComponent(file)}`;
+    return p;
+  }
+
+  return p;
+}
+
+function ensurePng(file) {
+  const s = String(file || "").trim();
+  if (!s) return "";
+  return s.toLowerCase().endsWith(".png") ? s : `${s}.png`;
 }
 
 function basename(p) {
   if (!p) return "";
-  return String(p).split("/").pop().split("\\\\").pop();
+  return String(p).split("/").pop().split("\\").pop();
 }
 
 function extractDate(ts) {
-  const m = String(ts || "").match(/\\d{4}-\\d{2}-\\d{2}/);
+  const m = String(ts || "").match(/\d{4}-\d{2}-\d{2}/);
   return m ? m[0] : "";
 }
 
@@ -725,18 +890,19 @@ function normalizeSplit(v) {
   return "test";
 }
 
-function normalizeConfidence(v) {
+function normalizeConfidence(v, pUp = NaN) {
   const s = String(v || "").toLowerCase();
   if (s.includes("very") && s.includes("high")) return "very_high";
   if (s.includes("high")) return "high";
   if (s.includes("medium")) return "medium";
   if (s.includes("low")) return "low";
 
-  const n = number(v);
-  if (Number.isFinite(n)) {
-    if (n >= 0.9) return "very_high";
-    if (n >= 0.75) return "high";
-    if (n >= 0.6) return "medium";
+  const p = number(pUp);
+  if (Number.isFinite(p)) {
+    const d = Math.abs(p - 0.5);
+    if (d >= 0.35) return "very_high";
+    if (d >= 0.25) return "high";
+    if (d >= 0.10) return "medium";
     return "low";
   }
 
@@ -751,8 +917,8 @@ function normalizeSignal(bucket, pred, pUp) {
 
   const p = number(pUp);
   if (Number.isFinite(p)) {
-    if (p >= 0.7) return "long";
-    if (p <= 0.3) return "short";
+    if (p >= 0.70) return "long";
+    if (p <= 0.30) return "short";
   }
 
   const pr = number(pred);
@@ -772,8 +938,8 @@ function normalizeXai(bucket, fg, bg) {
   const b = number(bg);
 
   if (Number.isFinite(f) && Number.isFinite(b)) {
-    if (f >= 0.22 && f >= b * 0.22) return "chart-led";
-    if (f >= 0.10) return "mixed";
+    if (f >= 0.50) return "chart-led";
+    if (f >= 0.20) return "mixed";
     return "background-heavy";
   }
 
@@ -801,23 +967,23 @@ function prettyXai(v) {
 }
 
 function prettySystem(v) {
-  const s = String(v || "");
-  if (s.includes("best_single_fullsample") || s.includes("single_I60")) return "Single I60 OHLC";
+  const s = String(v || "").toLowerCase();
+  if (s.includes("best_single_fullsample") || s.includes("single_i60")) return "Single I60 OHLC";
   if (s.includes("multiscale_fullsample") || s.includes("multi_20_60")) return "Multi 20+60 Rich";
   if (s.includes("best_tail_rule")) return "I60 Tail Rule";
-  if (s.includes("single_I120")) return "Single I120";
+  if (s.includes("single_i120")) return "Single I120";
   if (s.includes("gated") && s.includes("ma0_vol0")) return "Gated 20+60+120";
   if (s.includes("gated") && s.includes("ma1_vol1")) return "Gated Rich";
   if (s.includes("numeric")) return "Numeric logistic";
   if (s.includes("simple_momentum")) return "Momentum sign";
   if (s.includes("hog")) return "HOG I120";
   if (s.includes("haar")) return "HAAR-like";
-  return s.replaceAll("_", " ");
+  return String(v || "").replaceAll("_", " ");
 }
 
 function parseTruth(v) {
   if (v === "" || v === undefined || v === null) return null;
-  const s = String(v).toLowerCase();
+  const s = String(v).toLowerCase().trim();
   if (["1", "true", "yes"].includes(s)) return true;
   if (["0", "false", "no"].includes(s)) return false;
   return null;
@@ -826,51 +992,6 @@ function parseTruth(v) {
 function setBar(id, pct) {
   const el = document.getElementById(id);
   if (el) el.style.width = `${pct}%`;
-}
-
-function updateMainImage(src) {
-  const img = document.getElementById("main-image");
-  const empty = document.getElementById("main-image-empty");
-
-  if (!src) {
-    img.style.display = "none";
-    img.removeAttribute("src");
-    empty.style.display = "grid";
-    empty.textContent = "No image available yet. Upload the corresponding PNG files into the expected assets folders.";
-    return;
-  }
-
-  img.style.display = "block";
-  img.src = src;
-
-  img.onerror = () => {
-    img.style.display = "none";
-    empty.style.display = "grid";
-    empty.textContent = `Missing asset: ${src}`;
-  };
-
-  img.onload = () => {
-    empty.style.display = "none";
-  };
-}
-
-function updateThumb(id, src) {
-  const img = document.getElementById(id);
-  if (!img) return;
-
-  if (!src) {
-    img.removeAttribute("src");
-    img.style.display = "none";
-    return;
-  }
-
-  img.style.display = "block";
-  img.src = src;
-
-  img.onerror = () => {
-    img.removeAttribute("src");
-    img.style.display = "none";
-  };
 }
 
 function getAny(obj, keys) {
@@ -883,7 +1004,8 @@ function getAny(obj, keys) {
 }
 
 function val(id) {
-  return document.getElementById(id).value;
+  const el = document.getElementById(id);
+  return el ? el.value : "";
 }
 
 function setText(id, text) {
