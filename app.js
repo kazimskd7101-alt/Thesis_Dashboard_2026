@@ -174,10 +174,7 @@ function buildRows() {
 }
 
 function sampleIdFromRow(r) {
-  const candidates = [
-    getAny(r, ["sample_id", "id", "idx", "index"])
-  ];
-  const direct = candidates.find(v => v !== "" && v !== null && v !== undefined);
+  const direct = getAny(r, ["sample_id", "id", "idx", "index"]);
   if (direct !== undefined && direct !== null && direct !== "") {
     return String(normalizeId(direct));
   }
@@ -290,10 +287,16 @@ function applyFilters() {
   }).sort(defaultSort);
 
   renderQueue();
-  selectRow(state.filtered[0] || null);
+  selectRow(selectBestInitialRow(state.filtered));
   setText("kpi-queue-size", String(state.filtered.length));
   setText("queue-summary-pill", `${state.filtered.length} surfaced case${state.filtered.length === 1 ? "" : "s"}`);
   renderCharts();
+}
+
+function selectBestInitialRow(rows) {
+  if (!rows || !rows.length) return null;
+  const withRaw = rows.find(r => !!r.rawSrc);
+  return withRaw || rows[0];
 }
 
 function resetFilters() {
@@ -371,11 +374,13 @@ function renderStudio() {
     ["chip-contract", "chip-split", "chip-signal", "chip-confidence", "chip-xai"].forEach(id => setText(id, "—"));
     ["evidence-prob", "evidence-fwd", "evidence-correct", "evidence-error", "evidence-fg", "evidence-bg"].forEach(id => setText(id, "—"));
     setText("decision-note", "No decision note available.");
+
     const actionEl = document.getElementById("case-action-pill");
     if (actionEl) {
       actionEl.textContent = "Awaiting selection";
       actionEl.className = "case-action";
     }
+
     updateMainImage("");
     updateThumb("thumb-raw", "");
     updateThumb("thumb-overlay", "");
@@ -809,12 +814,12 @@ function resolveRawImageBySplit(pathValue, fileValue, splitValue, gradStem = "")
   const encoded = encodeURIComponent(file);
 
   if (splitValue === "test") {
-    return `assets/raw/test_raw_images/${encoded}`;
+    return `assets/test_raw_images/${encoded}`;
   }
   if (splitValue === "val" || splitValue === "validation") {
-    return `assets/raw/val_raw_images/${encoded}`;
+    return `assets/val_raw_images/${encoded}`;
   }
-  return `assets/raw/train_raw_images/${encoded}`;
+  return `assets/train_raw_images/${encoded}`;
 }
 
 function resolveGradcamImage(pathValue, fileValue, kind) {
@@ -841,17 +846,22 @@ function normalizeAssetPath(path, kind = "") {
 
   let p = String(path).replaceAll("\\", "/").trim();
 
-  // Raw image directory normalization
-  p = p.replace("assets/raw/test raw images/", "assets/raw/test_raw_images/");
-  p = p.replace("assets/raw/train raw images/", "assets/raw/train_raw_images/");
-  p = p.replace("assets/raw/val raw images/", "assets/raw/val_raw_images/");
+  p = p.replace("assets/raw/test raw images/", "assets/test_raw_images/");
+  p = p.replace("assets/raw/train raw images/", "assets/train_raw_images/");
+  p = p.replace("assets/raw/val raw images/", "assets/val_raw_images/");
 
-  // Grad-CAM directory normalization
+  p = p.replace("assets/raw/test_raw_images/", "assets/test_raw_images/");
+  p = p.replace("assets/raw/train_raw_images/", "assets/train_raw_images/");
+  p = p.replace("assets/raw/val_raw_images/", "assets/val_raw_images/");
+
+  p = p.replace("assets/test raw images/", "assets/test_raw_images/");
+  p = p.replace("assets/train raw images/", "assets/train_raw_images/");
+  p = p.replace("assets/val raw images/", "assets/val_raw_images/");
+
   p = p.replace("assets/gradcam/test_gradcam_overlay/", "assets/gradcam/overlay/");
   p = p.replace("assets/gradcam/test_gradcam_masked_overlay/", "assets/gradcam/masked/");
   p = p.replace("assets/gradcam/test_gradcam_heatmap/", "assets/gradcam/heat/");
 
-  // If only basename supplied, route to correct dir
   if (!p.includes("/") && p) {
     const file = ensurePng(p);
     if (kind === "overlay") return `assets/gradcam/overlay/${encodeURIComponent(file)}`;
