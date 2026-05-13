@@ -1,0 +1,17 @@
+\section*{Appendix B. Empirical Materials and Reproducibility Package}
+\addcontentsline{toc}{section}{Appendix B. Empirical Materials and Reproducibility Package}
+The empirical package used in this manuscript contains raw and derived market data, model outputs, dashboard files, image manifests, Grad-CAM visualizations and analysis notebooks. The confirmed package inventory includes 51 files: 21 result files, 8 model files, 7 derived-data files and 15 raw-data files.
+
+The core data lineage is: 775,621 raw one-minute MOEX Si futures rows; 89,628 fifteen-minute by-contract candles; 29,926 clean continuous-front fifteen-minute rows; 502 clean trading dates; an I60/R20 manifest with 19,249 valid samples; an I120/R20 Option B manifest with 18,924 valid samples; and a numeric benchmark feature table with 17,303 rows.
+
+The continuous-front contract sequence is SiH4 $\rightarrow$ SiM4 $\rightarrow$ SiU4 $\rightarrow$ SiZ4 $\rightarrow$ SiH5 $\rightarrow$ SiM5 $\rightarrow$ SiU5 $\rightarrow$ SiZ5.
+
+The visual evidence package includes raw train, validation and test preview images; selected raw images corresponding to Grad-CAM cases; heatmap-only Grad-CAM images; full overlays; masked overlays; and dashboard screenshots. These materials support case-level audit but should not be interpreted as full-distribution XAI evidence unless explicitly stated.
+
+The dashboard artifact and public-facing project materials are available at the project repository and deployment links listed below. These links supplement the submitted manuscript and should be interpreted as artifact-access resources rather than additional empirical evidence beyond the verified files used in the thesis.
+
+\begin{itemize}
+    \item GitHub repository: \url{https://github.com/kazimskd7101-alt/Thesis_Dashboard_2026}
+    \item Dashboard deployment: \url{https://kazimskd7101-alt.github.io/Thesis_Dashboard_2026/}
+\end{itemize}
+

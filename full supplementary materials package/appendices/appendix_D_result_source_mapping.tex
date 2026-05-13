@@ -1,0 +1,52 @@
+
+\clearpage
+\section*{Appendix D. Result-Source Mapping}
+\addcontentsline{toc}{section}{Appendix D. Result-Source Mapping}
+
+Table~\ref{tab:result-source-map} records how manuscript tables and figures map to supplied result files. Items not directly available are marked accordingly.
+
+{\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{longtable}{p{0.10\textwidth}p{0.34\textwidth}p{0.20\textwidth}p{0.26\textwidth}}
+\caption{Result-source mapping for reproducibility.}\label{tab:result-source-map}\\
+\toprule
+Manuscript item & Result/source file & Key metric/content & Notes \\
+\midrule
+\endfirsthead
+\caption[]{Result-source mapping for reproducibility (continued).}\\
+\toprule
+Manuscript item & Result/source file & Key metric/content & Notes \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{Continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Table I & \path{si_1m_merged_raw.parquet}; \path{si_candles_15m_by_contract.parquet}; \path{si_continuous_front_15m_clean_v2.parquet}; \path{package_manifest.csv} & row counts and package inventory & row counts confirmed from supplied materials/context \\
+Table II & \path{si_front_daily_contracts_clean.csv/parquet}; supplied roll sequence & roll dates and front sequence & daily volume removed because it was blank/unavailable \\
+Table III & \path{train_raw_index.csv}; \path{val_raw_index.csv}; \path{test_raw_index.csv}; \path{test_gradcam_index.csv} & manifest rows, contracts, selected export accuracy & dashboard/export recomputation only \\
+Table IV & model checkpoint audit / supplied context & parameter-entry audit & approximate checkpoint entries only \\
+Table V & dashboard source files; \path{app.js}; dashboard data tables; final dashboard screenshots if present & dashboard components and decision-support functions & artifact-function mapping, not a statistical result table \\
+Table VI & \path{ablation_summary.csv}; \path{multi_scale_summary.csv}; \path{final_compare_table.csv} & full-sample metrics & eligible N unavailable for numeric/momentum summaries where not directly supplied \\
+Table VII & \path{tail_grid_results.csv}; \path{optionB_tail_grid_results.csv} & selective coverage frontier rows & N traced from exact coverage and selected rows in source CSVs \\
+Table VIII & \path{optionB_finalists.csv} & strict finalist and selected comparators & Wilson CI added for 45/54 strict finalist \\
+Table IX & \path{final_compare_table.csv}; \path{hog_tail_results_I120_ma0_vol0.csv}; \path{haar_tail_results_I120_ma0_vol0.csv} & baseline metrics & CNN strict finalist is reported in Table VIII \\
+Table X & \path{test_gradcam_index.csv}; \path{optionB_tail_grid_results.csv}; \path{optionB_finalists.csv} & dashboard/export consistency note & row-level cause of one-case discrepancy not available in the supplied materials \\
+Table XI & synthesis from results tables, XAI diagnostics, data limitations and methodology notes & limitation-evidence-mitigation mapping & includes small selected-sample uncertainty, grid-selection risk, contract concentration, XAI caution, unavailable value/turnover, overlapping windows and no profitability claim \\
+Table XII & \path{Untitled24.ipynb}; \path{moex_si_thesis_complete_workflow_v2 (3).ipynb} & training/evaluation protocol values & missing low-level fields remain marked as not available in the supplied materials \\
+Table XIII & this appendix table itself & source traceability & all table numbers checked against the final manuscript \\
+Table XIV & HSE project-based FQW requirements and manuscript section mapping & compliance with 7.5.1--7.5.5 & full table body visible in Appendix E \\
+Figure 1 & conceptual project pipeline & data-to-decision workflow & schematic, not empirical result \\
+Figure 2 & Re-Imag paper and this thesis design comparison & methodological alignment & compares benchmark design with the present intraday decision-support design \\
+Figure 3 & raw chart-image preview files / train, validation and test raw image batches & illustrative split examples & representative inputs, not a performance result \\
+Figure 4 & model architecture design and checkpoint audit & conceptual architecture and parameter-entry summary & shows single-scale and multi-scale model families \\
+Figure 5 & dashboard source files / dashboard schematic & artifact schematic & summarizes Decision Support Studio components \\
+Figure 6 & full-sample benchmark result tables & full-sample benchmark ladder & visualizes Table VI \\
+Figure 7 & \path{tail_grid_results.csv}; \path{optionB_tail_grid_results.csv} & selective coverage frontier & visualizes Table VII \\
+Figure 8 & strict finalist and HOG/HAAR baseline tables & selective CNN/HOG/HAAR comparison & visualizes Table VIII/Table IX comparison \\
+Figure 9 & selected raw/heat/overlay/masked image files for samples 16653 and 16958 & case-level Grad-CAM audit & representative selected cases, not full distribution \\
+Figure 10 & \path{optionB_gradcam_summary_strict_best_score.csv} & average foreground/background heat shares & overlay inspection refines the strict-mask result \\
+\end{longtable}
+}

@@ -1,0 +1,24 @@
+\clearpage
+\section*{Appendix E. HSE Project-Based FQW Compliance Mapping}
+\addcontentsline{toc}{section}{Appendix E. HSE Project-Based FQW Compliance Mapping}
+
+Table~\ref{tab:hse-compliance-map} provides a compact mapping between the project-based FQW structure and the manuscript sections. It is included to make the applied project logic explicit for thesis assessment while preserving the scientific manuscript structure.
+
+\begin{center}
+\captionof{table}{HSE project-based FQW compliance mapping.}
+\label{tab:hse-compliance-map}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{p{0.27\textwidth}p{0.31\textwidth}p{0.34\textwidth}}
+\toprule
+HSE project-based FQW requirement & Where addressed in the manuscript & Compliance note \\
+\midrule
+7.5.1 Description of the organization/practice problem, relevance and objectives & Introduction; applied trading-analytics problem framing; relevance, purpose, objectives, object, subject and practical value & The thesis frames the organization/practice problem as the need for selective and auditable intraday trading-analytics decision support. \\
+7.5.2 Systematic review of relevant company/practical approaches and academic publications & Section II, Analysis of Best Practices and Academic Literature & The literature review is organized as a taxonomy covering financial ML, chart-image forecasting, intraday/high-frequency learning, visual baselines, XAI and decision-support artifacts. \\
+7.5.3 Diagnostic study of internal and external environment & Section III, applied decision problem, internal/external decision environment, data and market diagnostic framing & The internal environment is the analyst/model-governance workflow; the external environment is MOEX Si futures, intraday noise, contract rolls, overlapping windows and short-horizon uncertainty. \\
+7.5.4 Selection and justification of project design and methodology & Section III, data provenance, image/label design, Re-Imag alignment, CNNs, baselines, selective rule, Grad-CAM and metrics & The methodology is justified by the Re-Imag benchmark, financial ML evaluation discipline, selective prediction logic and XAI audit requirements. \\
+7.5.5 Proposed solution, procedures, governance and effectiveness evaluation & Section IV Decision Support Studio; Section V results, discussion, limitations and conclusion & The proposed artifact includes the dashboard, analyst workflow, caution rules, evidence hierarchy, selective queue and quantitative/visual effectiveness evaluation. \\
+\bottomrule
+\end{tabular}
+\end{center}

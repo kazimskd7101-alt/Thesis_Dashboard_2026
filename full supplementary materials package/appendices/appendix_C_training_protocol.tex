@@ -1,0 +1,41 @@
+\section*{Appendix C. Training and Evaluation Protocol}
+\addcontentsline{toc}{section}{Appendix C. Training and Evaluation Protocol}
+
+Table~\ref{tab:training-protocol} is included as a reproducibility disclosure. Fields are reported only when they are traceable to the supplied notebooks or result files; remaining unavailable fields are reported transparently rather than inferred, so that the boundary between verified implementation evidence and missing metadata remains clear.
+
+\begin{center}
+\captionof{table}{Verified training and evaluation protocol.}
+\label{tab:training-protocol}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{p{0.16\textwidth}p{0.39\textwidth}p{0.39\textwidth}}
+\toprule
+Item & Initial baseline workflow & Revised final workflow \\
+\midrule
+Workflow role & Initial 20-bar baseline experiment used to motivate the revised design. & Revised final workflow used for the main multi-scale, selective and dashboard-supported results. \\
+Notebook source & \texttt{Untitled24.ipynb}. & \texttt{moex\_si\_thesis\_complete\_workflow\_v2 (3).ipynb}. \\
+Model family & \texttt{StockCNN20}. & Single-scale I60/I120 CNNs and multi-scale gated 20/60/120 CNNs. \\
+Split method & Chronological split as implemented in the baseline manifest. & Strict chronological split by unique trade date. Split ratio: 70\% train, 15\% validation and 15\% test by unique trade dates. \\
+Split rows & Train 7059, validation 1645, test 1646. & Option B after q-filter: 17,013 rows; train 11,745, validation 2,581, test 2,687. \\
+Input windows & I20 / 20 bars. & Main scales: [20, 60]. Option B scales: [20, 60, 120]. Input cross-day context is allowed for long contexts. \\
+Image sizes & $1\times64\times60$ grayscale. & Bar width is 3 pixels per bar. Height map: I20 = 64, I60 = 96, I120 = 128. Width rule: width = $3\times$ scale, so I20 = 60, I60 = 180 and I120 = 360. Price panel ratio = 0.80; vertical padding = 0.03. \\
+Forecast label & R20 / 20-bar forward direction. & R20 = 20-bar forward direction. With fifteen-minute bars, this corresponds to approximately five trading hours ahead, subject to the trading calendar and available intraday observations. Future same-day requirement = True. \\
+Loss function & \texttt{nn.CrossEntropyLoss()}. & \texttt{nn.CrossEntropyLoss(weight=class\_weights)}. \\
+Optimizer & \texttt{torch.optim.Adam(model.parameters(), lr=LR)}. & \texttt{torch.optim.AdamW(..., lr=lr, weight\_decay=weight\_decay)}. \\
+Learning rate & $1\mathrm{e}{-3}$. & $1\mathrm{e}{-4}$ for single and multi-scale models. \\
+Weight decay & not available in the supplied materials. & $1\mathrm{e}{-4}$. \\
+Batch size & 64. & 64. \\
+Maximum epochs & 12. & 20. \\
+Early stopping patience & 3. & 5. \\
+Selected epoch / checkpoint rule & Lowest validation loss; best epoch = 4; early stopping stopped at epoch 7. & Best validation checkpoint retained; best validation ROC-AUC used for checkpointing where reported. I120 OHLC-only best epoch = 4 with best validation AUC = 0.576943755; multi-gated OHLC-only best epoch = 2; multi-gated rich best epoch = 3. \\
+Threshold selection & not available in the supplied materials. & Classification threshold selected on validation balanced accuracy. \\
+Random seed & 42. & 42. \\
+Class weighting & not available in the supplied materials unless explicitly visible in the notebook. & Inverse class-frequency weights computed from the training split. \\
+Device/environment & CPU shown in notebook output. & Google Colab / PyTorch workflow; CUDA reported in the revised workflow notebook. Exact GPU model is not available in the supplied materials. Main workers = 2; Option B workers = 0. \\
+Evaluation metrics & Accuracy and ROC-AUC for the old baseline; final test accuracy = 0.552248. & Accuracy, balanced accuracy, precision, recall, F1-score, MCC, ROC-AUC, log loss, Brier score, coverage and selected rows where available in result outputs. \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\parbox{0.96\textwidth}{\footnotesize\emph{Note:} Low-level implementation fields are reported only where traceable to the supplied notebooks. Exact GPU model and some initial baseline training details are not inferred when absent from the supplied materials.}
+\end{center}
