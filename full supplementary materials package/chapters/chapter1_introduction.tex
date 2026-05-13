@@ -1,0 +1,142 @@
+% ============================================================
+% CHAPTER 1. INTRODUCTION
+% ============================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+Intraday futures trading decisions are made under conditions of high noise, short feedback cycles and substantial uncertainty. A trader or analyst observes a continuous stream of price changes, but only a small fraction of chart windows are likely to contain sufficiently strong directional evidence to justify focused attention. Conventional machine-learning systems often convert this environment into a simple classification task: for every rolling window, predict whether the future return will be positive or non-positive. Such an approach is technically convenient, but it is not necessarily aligned with the practical decision problem. In a noisy intraday market, a weak prediction for every window may be less useful than a smaller set of high-confidence cases that can be inspected, explained and governed.
+
+This thesis develops an explainable selective decision-support artifact for intraday MOEX Si futures analysis. The system adapts the chart-image forecasting logic of Jiang, Kelly and Xiu's ``(Re-)Imag(in)ing Price Trends'' \cite{jiang_reimagining_price_trends} to a fifteen-minute futures setting. It represents recent Si futures price histories as candlestick or chart images, trains CNN-based directional models, applies selective probability-tail rules to abstain from ambiguous windows, audits selected cases with Grad-CAM visualizations, and presents the result in a human-in-the-loop dashboard called \emph{Decision Support Studio}. The proposed artifact is not an automated trading system. It is a selective, auditable workflow for analyst inspection.
+
+The central argument is deliberately cautious. The full-sample forecasting edge is modest. The best full-sample CNN in the revised experiment, \texttt{single\_I60\_ma0\_vol0}, achieves 0.587 accuracy, 0.559 balanced accuracy, 0.126 MCC and 0.580 ROC-AUC. This result improves on the initial 20-bar baseline, but it does not justify a universal forecasting claim. The stronger result appears when the system is used selectively. The strict-finalist model, \texttt{single\_I120\_ma0\_vol0}, achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows, with 0.834 balanced accuracy, 0.830 F1-score and 0.667 MCC. The practical contribution is therefore not that every intraday window can be predicted reliably. The contribution is that a selective model-dashboard artifact can abstain from most ambiguous cases and surface a small set of stronger signals for human review.
+
+\subsection{Relevance of the Topic}
+\label{subsec:relevance}
+
+The topic is relevant for both academic and practical reasons. Academically, financial machine learning increasingly studies deep learning, time-series representation and visual price-pattern extraction, but short-horizon financial prediction remains difficult because of low signal-to-noise ratios, non-stationarity and evaluation risks \cite{lopez_de_prado_afml,sezer_financial_forecasting_survey,lim_zohren_time_series_forecasting}. The chart-image approach of ``(Re-)Imag(in)ing Price Trends'' provides a strong benchmark for representing price histories as images and learning return-direction signals with CNNs \cite{jiang_reimagining_price_trends}. However, adapting this approach to intraday futures requires additional design choices: contract rolls, shorter horizons, overlapping windows, limited valid volume/value information, selective prediction and operational interpretability.
+
+Practically, traders and trading analysts need decision-support tools that do not merely output predictions. They need tools that show when a signal is strong enough to inspect, how much of the data stream is being selected, what the model confidence is, and whether the visual evidence is plausible. This is especially important for post-hoc explainability methods such as Grad-CAM, which can support inspection but should not be treated as proof of causal model reasoning \cite{selvaraju_gradcam,adebayo_sanity_checks,rudin_black_boxes}. A dashboard that connects selected model outputs to raw chart images, overlays, heatmaps, confidence buckets and coverage analytics is therefore a management-relevant artifact, not just a visualization accessory.
+
+The topic also fits a project-based analytics format. The applied problem is the design of a reliable management/analytics procedure for using intraday model signals in a cautious and auditable way. The proposed solution is a system artifact that combines data engineering, model training, selective rules, XAI diagnostics and analyst workflow design.
+
+\subsection{Degree of Academic Development}
+\label{subsec:academic_development}
+
+The academic foundation of this thesis spans several research streams. The first stream is financial machine learning and technical price-pattern analysis. Studies of technical trading rules and chart patterns provide an early empirical foundation for the idea that price histories may contain visually or statistically recognizable structures \cite{brock_technical_trading,lo_foundations_technical_analysis}. Modern financial machine learning extends this literature with more flexible models and stronger warnings about validation and overfitting \cite{lopez_de_prado_afml,bailey_deflated_sharpe}.
+
+The second stream is deep learning for financial time-series forecasting. Surveys by Sezer, Gudelek and Ozbayoglu and by Lim and Zohren document the growth of CNN, recurrent and hybrid methods in financial forecasting and time-series prediction \cite{sezer_financial_forecasting_survey,lim_zohren_time_series_forecasting}. The third stream is chart-image learning, with Jiang, Kelly and Xiu's Re-Imag study serving as the main methodological benchmark \cite{jiang_reimagining_price_trends}. Their work motivates the conversion of market histories into images and the use of CNNs to learn visual price-pattern information.
+
+The fourth stream is intraday and high-frequency financial prediction. Research on limit-order-book prediction, DeepLOB and high-frequency price formation shows that intraday data can contain learnable structure, while also emphasizing the difficulty of the task \cite{deeplob,zhang_lob_cnn,sirignano_cont_universal}. The fifth stream is time-series representation and classification, including time-series-to-image methods, InceptionTime, ROCKET, shapelet methods and other representations \cite{wang_oates_imaging_time_series,fawaz_tsc_review,inceptiontime,rocket}. The sixth stream is explainable AI, including Grad-CAM, saliency-map methods and surveys of XAI in general and in finance \cite{guidotti_survey,adadi_berrada_xai,arrieta_xai,weber_xai_finance}. Finally, design science and decision-support research provide the project-artifact framing for the dashboard and human-in-the-loop workflow \cite{hevner_dsr,peffers_dsrm,venable_feds}.
+
+Despite this broad foundation, there remains a gap at the intersection of intraday futures chart-image forecasting, selective prediction, Grad-CAM-based audit and dashboard-based decision support. This thesis is positioned in that gap.
+
+\subsection{Research Problem and Gap}
+\label{subsec:problem_gap}
+
+The research problem can be stated as follows. Intraday futures price windows are noisy and heavily overlapping, so an always-on CNN classifier is unlikely to provide reliable advice for every decision point. At the same time, chart-image CNNs may still contain useful information in high-confidence probability regions. The project problem is therefore to design and evaluate a system that does not overclaim universal prediction, but instead selectively surfaces stronger cases and makes them auditable.
+
+Existing research provides several partial answers. Chart-image CNNs have been shown to be useful in daily equity settings \cite{jiang_reimagining_price_trends}. High-frequency deep learning studies show that deep models can learn from intraday market structure \cite{deeplob,sirignano_cont_universal}. XAI studies provide methods for inspecting neural-network outputs \cite{selvaraju_gradcam,arrieta_xai}. Design-science research explains how artifacts can be evaluated in applied organizational settings \cite{hevner_dsr,peffers_dsrm}. However, these streams do not fully answer how to build a selective, explainable, human-in-the-loop decision-support artifact for intraday futures chart-image analysis.
+
+The gap addressed by this thesis is therefore:
+
+\begin{quote}
+Prior work shows that chart-image CNNs can forecast returns in equity markets, but less is known about selective, explainable, human-in-the-loop intraday futures decision support using multi-scale chart images, Grad-CAM audit and dashboard-based analyst workflow.
+\end{quote}
+
+\subsection{Purpose and Objectives}
+\label{subsec:purpose_objectives}
+
+\input{inserted_assets/fig_pipeline.tex}
+
+
+The purpose of this thesis is to develop and evaluate an explainable selective decision-support artifact for intraday MOEX Si futures analysis using CNN-based directional forecasting from candlestick chart images.
+
+To achieve this purpose, the thesis pursues the following objectives:
+
+\begin{enumerate}
+    \item construct a chronology-aware MOEX Si continuous-front dataset from raw one-minute futures records and fifteen-minute candles;
+    \item generate rolling chart-image representations and future-direction labels suitable for CNN-based classification;
+    \item adapt the Re-Imag-style chart-image learning approach to intraday futures through I60, I120 and multi-scale input designs;
+    \item train and evaluate CNN models under full-sample and selective probability-tail settings;
+    \item compare CNN results with numeric, momentum, HOG and HAAR-style baselines;
+    \item audit selected model decisions using Grad-CAM heatmaps, full overlays, masked overlays and raw image inspection;
+    \item implement a Decision Support Studio dashboard that links selected cases to probabilities, confidence buckets, XAI views and analyst workflow;
+    \item evaluate the system's effectiveness, limitations and practical relevance as a human-in-the-loop decision-support artifact.
+\end{enumerate}
+
+These objectives map directly to the five-chapter structure. Chapter 2 reviews the literature and practices. Chapter 3 defines the methodology. Chapter 4 describes the artifact. Chapter 5 evaluates the results and limitations.
+
+\subsection{Research Questions}
+\label{subsec:research_questions}
+
+The study is guided by three research questions:
+
+\begin{description}
+    \item[RQ1:] Can chronology-aware candlestick-chart CNN models provide useful full-sample directional information for intraday MOEX Si futures when contract rolls, intraday session structure and benchmark comparisons are handled conservatively?
+    \item[RQ2:] Does selective probability-tail abstention improve the practical decision-support value of the forecasting artifact compared with compulsory full-coverage prediction?
+    \item[RQ3:] Can Grad-CAM visual diagnostics and dashboard-based case inspection make selected CNN signals auditable for human analysts while avoiding strong claims of precise candle-level or causal interpretability?
+\end{description}
+
+These questions preserve the thesis's cautious framing: the aim is not to prove automated profitability, but to evaluate whether selected, visually auditable cases can support analyst inspection.
+
+\subsection{Object and Subject of the Study}
+\label{subsec:object_subject}
+
+The object of the study is the intraday trading-analytics decision environment for MOEX Si futures, represented by the task of interpreting rolling fifteen-minute price histories and deciding which cases merit analyst attention.
+
+The subject of the study is the design and evaluation of an explainable selective decision-support system that uses candlestick chart images, CNN probability estimates, selective probability-tail rules, Grad-CAM diagnostics and dashboard-based case inspection to support intraday directional analysis.
+
+This distinction is important. The thesis is not only about a model architecture. It is about the use of a model inside a practical decision-support workflow.
+
+\subsection{Research Methods}
+\label{subsec:methods}
+
+The thesis uses a mixed project-research methodology. The empirical component includes data preprocessing, continuous-front construction, chart-image generation, supervised learning, baseline comparison and performance evaluation. The modeling component includes CNN classifiers, multi-scale input designs, numeric/logistic baselines, momentum baselines, HOG features and HAAR-like features. The evaluation component uses accuracy, balanced accuracy, precision, recall, F1-score, MCC, ROC-AUC where available, coverage and selected row counts.
+
+The explainability component uses Grad-CAM visual diagnostics. Grad-CAM outputs are analyzed through heatmap-only images, full overlays, masked overlays and raw chart comparisons. The project component uses design-science logic to build and evaluate the Decision Support Studio dashboard as an artifact for analyst inspection. The final interpretation combines quantitative performance evidence with qualitative and visual case-level audit.
+
+\subsection{Information Sources and Empirical Materials}
+\label{subsec:information_sources}
+
+The empirical materials consist of MOEX Si futures data and derived experiment files. The raw data contain 775,621 one-minute rows. These are aggregated to 89,628 fifteen-minute by-contract candles and then to a clean continuous-front table with 29,926 rows over 502 clean trading dates. The contract roll sequence is SiH4, SiM4, SiU4, SiZ4, SiH5, SiM5, SiU5 and SiZ5. The reproducibility package contains 51 files, including result files, model files, derived-data files and raw-data files.
+
+The experiment materials include I60/R20 and I120/R20 manifests, numeric benchmark features, CNN model checkpoints, tail-grid result files, HOG/HAAR baseline outputs, Grad-CAM index files, raw image batches, heatmap-only images, full overlays, masked overlays, selected raw images and the final dashboard files. The academic materials include more than 50 supplied papers covering financial machine learning, chart-image forecasting, high-frequency deep learning, time-series representation, XAI, saliency limitations and design science.
+
+\subsection{Academic Novelty}
+\label{subsec:novelty}
+
+The thesis does not claim novelty in inventing CNNs, Grad-CAM or chart-image learning. Its novelty lies in the adaptation and integration of these components for a specific intraday futures decision-support problem. The main novelty elements are:
+
+\begin{enumerate}
+    \item adaptation of Re-Imag-style chart-image forecasting to intraday MOEX Si futures;
+    \item use of multi-scale intraday input windows and selective probability-tail rules for decision support;
+    \item comparison of CNN probabilities with numeric, momentum, HOG and HAAR-style baselines in the same project package;
+    \item Grad-CAM audit of selected high-confidence cases with raw, heatmap, overlay and masked views;
+    \item implementation of a dashboard artifact that operationalizes selective, explainable and human-in-the-loop intraday decision support.
+\end{enumerate}
+
+The novelty is therefore primarily methodological and artifact-based: the thesis integrates existing ideas into a reproducible, domain-specific decision-support workflow and evaluates that workflow with actual Si futures data.
+
+\subsection{Practical Value}
+\label{subsec:practical_value}
+
+The practical value of the thesis is the Decision Support Studio artifact and its associated operating procedure. The dashboard transforms model outputs into a filtered analyst queue. It allows the user to inspect raw chart images, model probabilities, selected signal direction, confidence buckets, Grad-CAM heatmaps, full overlays, masked overlays and aggregate performance panels. This helps prevent the model from being interpreted as a black-box trading command.
+
+For a trading analytics team, the artifact demonstrates how machine-learning signals can be governed. It shows that selective coverage should be visible, that XAI should be used for diagnostic review rather than as proof of correctness, and that ambiguous windows should be abstained from rather than forced into recommendations. This has practical relevance even though the thesis does not claim final transaction-cost-adjusted profitability.
+
+\subsection{Structure of the Work}
+\label{subsec:structure}
+
+The thesis is organized into five chapters.
+
+Chapter 1 introduces the problem, relevance, research gap, purpose, objectives, object, subject, methods, information sources, novelty and practical value.
+
+Chapter 2 analyzes best practices and academic literature. It reviews financial machine learning, chart-image prediction, intraday deep learning, time-series-to-image representation, visual baselines, XAI limitations and decision-support artifact design.
+
+Chapter 3 presents the methodology for project implementation. It describes the diagnostic study, data provenance, continuous-front construction, image and label design, Re-Imag alignment, CNN and baseline models, selective probability-tail rule, Grad-CAM diagnostics and evaluation metrics.
+
+Chapter 4 describes the solution architecture and decision-support artifact. It presents the Decision Support Studio dashboard, data-to-decision pipeline, image audit workflow, analyst operating procedure and governance rules.
+
+Chapter 5 reports the results, discussion, limitations and conclusion. It evaluates the old baseline, full-sample models, selective tail rules, strict finalist, multi-scale gated models, HOG/HAAR baselines, dashboard consistency and Grad-CAM visual audit, then states limitations and future work.
+

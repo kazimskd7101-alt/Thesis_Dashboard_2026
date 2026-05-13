@@ -1,0 +1,148 @@
+% ============================================================
+% CHAPTER 4. SOLUTION ARCHITECTURE AND DECISION-SUPPORT ARTIFACT
+% ============================================================
+
+\section{Solution Architecture and Decision-Support Artifact}
+\label{sec:solution_architecture}
+
+This section describes the proposed practical solution: an explainable, selective and human-in-the-loop decision-support artifact for intraday MOEX Si futures analysis. The artifact is not a fully automated trading system. It is a research prototype and analyst-facing workflow that connects model probabilities, selective coverage, raw chart evidence, Grad-CAM visualizations and cautionary governance rules in one inspection environment. This section presents the proposed solution to the applied trading-analytics problem: transforming noisy intraday model outputs into an auditable decision-support process.
+
+The solution is implemented as a pipeline and dashboard called \emph{Decision Support Studio}. The dashboard operationalizes the proposed decision-support framework by connecting selected CNN probability-tail cases to raw chart images, Grad-CAM heatmaps, masked overlays, confidence buckets and coverage-performance analytics. Its purpose is not to automate trades, but to provide an auditable queue for analyst inspection.
+
+\subsection{System Architecture}
+\label{subsec:system_architecture}
+
+The system architecture follows the complete evidence chain from raw market observations to analyst-facing decisions. The architecture consists of seven layers:
+
+\begin{enumerate}
+    \item raw MOEX Si futures one-minute data;
+    \item fifteen-minute by-contract OHLC aggregation;
+    \item clean continuous-front construction;
+    \item rolling chart-image generation;
+    \item CNN and baseline model scoring;
+    \item selective probability-tail filtering;
+    \item Grad-CAM visual audit and dashboard presentation.
+\end{enumerate}
+
+This architecture is shown conceptually in Figure~\ref{fig:pipeline}. The system starts from 775,621 raw one-minute rows and produces a clean continuous-front fifteen-minute series with 29,926 rows over 502 trading dates. From this series, rolling chart-image samples are constructed. Model predictions are generated for eligible samples, but only high-confidence probability-tail cases are surfaced for analyst review. The selected cases are linked to raw images, heatmaps, full overlays, masked overlays, labels, predicted probabilities, correctness indicators and forward returns.
+
+The architecture reflects a design-science view of the project. The artifact is not only the CNN model; it is the integrated decision process that includes data engineering, model scoring, abstention, explainability and user-facing inspection. This is consistent with design-science research principles, which evaluate artifacts by their ability to solve an applied problem in a relevant environment \cite{hevner_dsr,peffers_dsrm,venable_feds}.
+
+\subsection{Data-to-Decision Pipeline}
+\label{subsec:data_to_decision}
+
+The data-to-decision pipeline converts raw market data into a structured analyst queue. Its stages are as follows.
+
+First, one-minute futures records are aggregated to fifteen-minute OHLC candles for each contract. Second, a continuous-front series is constructed using the front-contract roll sequence:
+\[
+\begin{aligned}
+&\text{SiH4} \rightarrow \text{SiM4} \rightarrow \text{SiU4} \rightarrow \text{SiZ4}\\
+&\rightarrow \text{SiH5} \rightarrow \text{SiM5} \rightarrow \text{SiU5} \rightarrow \text{SiZ5}.
+\end{aligned}
+\]
+Third, rolling windows are converted into candlestick or chart images. Fourth, each image is scored by the CNN and, where relevant, by baseline models. Fifth, the selective tail rule keeps only cases whose predicted probability falls into the most extreme low or high probability regions. Sixth, Grad-CAM visualizations are generated for selected cases. Seventh, the selected cases and their visual evidence are loaded into the dashboard.
+
+The pipeline deliberately separates prediction from recommendation. A probability score is not automatically a recommendation. A case becomes decision-support material only when it passes the selective rule and is visible in the dashboard with sufficient evidence for analyst inspection. This separation is important because the full-sample model edge is modest, whereas the selective tail cases are stronger but based on a small selected sample. The pipeline therefore reduces the risk of presenting ordinary ambiguous windows as actionable signals.
+
+\subsection{Model and Selective-Rule Integration}
+\label{subsec:model_selective_integration}
+
+The dashboard integrates model outputs at two levels. At the first level, it shows aggregate model evidence: full-sample performance, selective frontier performance and strict-finalist performance. At the second level, it shows case-level evidence: probability, predicted direction, true label when available, forward return, signal bucket, confidence bucket and XAI quality bucket.
+
+The core integration logic is the selective probability-tail rule. For a predicted probability \(p_t\), extreme low values indicate high-confidence predicted-down cases and extreme high values indicate high-confidence predicted-up cases. The system retains both sides symmetrically. This is important because a decision-support queue supports both long/up and short/down analytical hypotheses. In the Grad-CAM selected export, the 54 selected rows are balanced by predicted side: 27 predicted-up and 27 predicted-down cases.
+
+Consistent with selective prediction and related reject-option or abstention logic \cite{chow_reject,elyaniv_selective,geifman_selective}, the strongest canonical selected result comes from \texttt{single\_I120\_ma0\_vol0}, which reaches 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows. This result is displayed as the strict finalist rather than as a general test-set accuracy. The dashboard also includes broader selective evidence, such as the I60 rule around 5.1\% or 10.1\% coverage, because an analyst may prefer a larger review queue with lower precision depending on operational needs.
+
+The integration design therefore supports three operating modes:
+
+\begin{enumerate}
+    \item \emph{Full-sample monitoring}: use aggregate metrics to understand the model's general edge.
+    \item \emph{Selective triage}: use probability-tail filtering to surface high-confidence cases.
+    \item \emph{Case audit}: inspect the raw chart and XAI views before treating a case as decision support.
+\end{enumerate}
+
+\subsection{Grad-CAM Image Audit Workflow}
+\label{subsec:image_audit_workflow}
+
+The Grad-CAM audit workflow links each selected case to four visual views:
+
+\begin{enumerate}
+    \item raw chart image;
+    \item heatmap-only Grad-CAM image;
+    \item full overlay image;
+    \item masked overlay image.
+\end{enumerate}
+
+The raw image shows the actual CNN input. The heatmap-only image shows the spatial distribution of class-discriminative activation. The full overlay shows the heatmap superimposed on the raw chart, making it possible to see whether activation is near visible chart structures. The masked overlay retains the visually emphasized chart regions and suppresses the rest, helping the analyst identify the chart geometry associated with the selected case.
+
+This workflow is necessary because the strict quantitative mask and visual inspection do not always give the same impression. Under strict foreground/background masks, selected cases can appear background-heavy. However, when raw, overlay and masked views are inspected together, representative selected cases are better described as chart-anchored but spatially diffuse. The highlighted regions often align with major trend segments, local turning regions or late-window breaks, but they are not sharply restricted to individual candle pixels.
+
+The case-level audit supports three interpretation rules:
+
+\begin{enumerate}
+    \item if activation is chart-anchored and the probability is extreme, the case may be suitable for analyst review;
+    \item if activation is diffuse or background-heavy under the strict mask, the case should be treated cautiously;
+    \item Grad-CAM is never interpreted as proof of causal market reasoning.
+\end{enumerate}
+
+This is consistent with the XAI literature, which treats saliency methods as post-hoc diagnostic tools rather than definitive explanations \cite{selvaraju_gradcam,adebayo_sanity_checks,arrieta_xai,rudin_black_boxes}.
+
+\subsection{Decision Support Studio Dashboard}
+\label{subsec:dashboard}
+
+\input{inserted_assets/table_dashboard.tex}
+\input{inserted_assets/fig_dash.tex}
+
+
+The final dashboard is a static single-page decision-support interface named \emph{Decision Support Studio}. It is built around an inspection workflow rather than around automatic trade execution. The dashboard master table contains 404 curated rows, including 54 selected prediction rows linked to Grad-CAM/dashboard evidence. The remaining curated rows support browsing, filtering and visual context rather than serving as the strict quantitative selected set. The interface supports raw, overlay, masked and heatmap views for case-level inspection.
+
+The dashboard contains several functional components, summarized in Table~\ref{tab:dashboard-functions}. These components include KPI cards, a signal queue, a case-level decision studio, image-view toggles, filters, analytics panels and governance notes. The KPI cards communicate the evidence hierarchy: the best full-sample branch, the practical selective rule, the strict finalist and the current filtered queue. The signal queue ranks selected cases for analyst inspection. The decision studio displays a selected case with its metadata and images. The analytics panels provide benchmark comparison, coverage frontier, XAI allocation and queue composition.
+
+The dashboard filters support operational exploration by contract, split, signal, confidence, XAI quality, date and search term. This is important because a decision-support tool should not hide selection. It should allow the analyst to see which contracts, dates and signal types dominate the surfaced cases. For example, the selected Grad-CAM export is concentrated in SiZ5, which is a limitation that the analyst can notice.
+
+The dashboard's purpose is not to convince the user that every surfaced case is correct. Its purpose is to make the evidence and caveats visible. A surfaced case is therefore presented with probability, label, forward return, image evidence and XAI diagnostics rather than only as a buy/sell signal.
+
+\subsection{Analyst Workflow and Operating Procedure}
+\label{subsec:analyst_workflow}
+
+The proposed operating procedure has six steps.
+
+\begin{enumerate}
+    \item \textbf{Review system context.} The analyst first observes the global KPI cards and confirms whether the model branch, coverage level and evidence hierarchy are appropriate for the current analysis session.
+    \item \textbf{Filter the queue.} The analyst filters by contract, signal direction, confidence, XAI group, date or search term.
+    \item \textbf{Inspect probability and coverage.} The analyst checks whether the case belongs to a strict high-confidence subset or a broader selective subset.
+    \item \textbf{Inspect chart evidence.} The analyst compares the raw chart with the heatmap-only, full-overlay and masked-overlay views.
+    \item \textbf{Apply caution rules.} If the case is diffuse, background-heavy by strict mask or inconsistent with visible chart structure, the analyst treats it as lower confidence.
+    \item \textbf{Record decision-support interpretation.} The case can be documented as supportive evidence, ambiguous evidence or rejected evidence, but it should not be executed automatically as a trade.
+\end{enumerate}
+
+This workflow converts a machine-learning score into a governed analytical process. It also aligns with the thesis's practical management goal: to support decision quality under uncertainty by providing a structured, auditable and cautious signal-review procedure.
+
+\subsection{Governance, Caution Rules and Human-in-the-Loop Use}
+\label{subsec:governance}
+
+The system includes explicit governance rules because the model is probabilistic, selective and post-hoc explainable. The main caution rules are:
+
+\begin{enumerate}
+    \item do not use the model as a blind automated trading system;
+    \item do not interpret full-sample accuracy as operational decision accuracy;
+    \item always report selected-case coverage and row count;
+    \item treat Grad-CAM as diagnostic evidence, not causal proof;
+    \item treat background-heavy or diffuse cases as requiring additional review;
+    \item do not claim transaction-cost-adjusted profitability without a separate economic backtest;
+    \item monitor contract concentration and regime dependence.
+\end{enumerate}
+
+These rules are displayed conceptually in the dashboard through operational stance and evidence-hierarchy panels. They are also reflected in the final limitations table. The governance design is part of the artifact's practical significance: it prevents the model output from being misused as an unqualified trading command.
+
+Human-in-the-loop use is central. The analyst remains responsible for interpreting the surfaced case, reviewing visual evidence and deciding whether the case should influence a trading or monitoring decision. The system supports the analyst by reducing the number of cases, organizing evidence and exposing uncertainty, consistent with human-AI interaction guidance for maintaining user control and making system state visible \cite{amershi_hai_guidelines}.
+
+\subsection{Effectiveness Logic of the Artifact}
+\label{subsec:artifact_effectiveness}
+
+The effectiveness of the solution is evaluated by combining quantitative model evidence with artifact-level usefulness. Quantitatively, the strongest selected model reaches 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows. A broader I60 selective rule reaches approximately 0.693 accuracy at about 10.1\% coverage. The HOG comparator reaches 0.704 accuracy and 0.455 MCC at 2.0\% coverage, while HAAR-like features are weaker. These results show that selective visual decision support has more practical value than the old always-on 20-bar classifier.
+
+At the artifact level, the dashboard satisfies the project requirement by providing a concrete solution with procedures and governance rules. It connects data provenance, model scoring, selective filtering, visual audit and analyst action. It therefore transforms a technical ML experiment into a management-relevant decision-support system.
+
+The artifact is evaluated as a prototype. It is suitable for thesis defense and research demonstration, but not yet for production trading deployment. Production deployment would require transaction-cost backtesting, monitoring, access control, live data integration, risk limits, and further validation across market regimes.
+

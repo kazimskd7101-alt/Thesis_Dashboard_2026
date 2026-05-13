@@ -1,0 +1,182 @@
+% ============================================================
+% CHAPTER 5. RESULTS, DISCUSSION, LIMITATIONS, AND CONCLUSION
+% ============================================================
+
+\section{Results, Discussion, Limitations, and Conclusion}
+\label{sec:results_discussion}
+
+This chapter evaluates whether the proposed system solves the project problem formulated in the previous chapters: transforming noisy intraday futures prediction into a selective, auditable and human-in-the-loop decision-support workflow. The evidence is presented in a deliberately conservative order. First, the old single-scale baseline is reported to show why the original always-on framing was insufficient. Second, the revised full-sample models are evaluated. Third, the selective probability-tail results are reported with explicit coverage and row counts. Fourth, the CNN results are compared with classical numeric and visual baselines. Fifth, Grad-CAM and dashboard evidence are interpreted as decision-audit tools rather than as proof of automated trading readiness.
+
+\subsection{Old Single-Scale Baseline and Motivation}
+\label{subsec:old_baseline}
+
+The initial project iteration used a single 20-bar chart-image model. That version was useful for proving that the data pipeline, image construction, CNN training, Grad-CAM export and dashboard prototype could be built. However, it did not provide a strong enough empirical result for a final thesis or journal-style manuscript.
+
+The old 20-bar-only model achieved approximately 0.552 test accuracy and 0.557 ROC-AUC. Because the corresponding majority-baseline denominator is not available in the supplied materials, the result is interpreted conservatively as a weak initial baseline rather than as evidence of a robust forecasting edge. These results motivate the revised research design. A diagnostic review of the initial experiment indicated that the earlier design used too narrow an input scale compared with the multi-horizon logic of Jiang, Kelly and Xiu's ``(Re-)Imag(in)ing Price Trends'' \cite{jiang_reimagining_price_trends}. The revision therefore expanded the experiment toward longer intraday input windows, selective tail-rule evaluation, classical visual baselines and more explicit Grad-CAM diagnostics.
+
+The key lesson from the old baseline is methodological: a model that predicts every rolling intraday window is unlikely to be useful when most windows are noisy and ambiguous. The revised system therefore changes the main question from ``Can the classifier predict every window?'' to ``Can the system identify a small subset of high-confidence windows that are suitable for analyst inspection?''
+
+\subsection{Full-Sample Model Results}
+\label{subsec:full_sample_results}
+
+\input{inserted_assets/table_full_sample.tex}
+\input{inserted_assets/fig_full.tex}
+
+
+Table~\ref{tab:full-sample} reports full-sample model and benchmark performance. The strongest full-coverage CNN is \texttt{single\_I60\_ma0\_vol0}, which uses an I60 OHLC-only chart input. It achieves 0.587 accuracy, 0.559 balanced accuracy, 0.126 MCC and 0.580 ROC-AUC. This is an improvement over the old 20-bar baseline and over the numeric logistic benchmark, but it remains a modest full-sample edge.
+
+The numeric logistic benchmark performs weakly, with 0.456 accuracy, 0.496 balanced accuracy and 0.523 ROC-AUC. The simple momentum-sign benchmark performs closer to random, with 0.522 accuracy and 0.518 balanced accuracy. The multi-scale full-sample model \texttt{multi\_20\_60\_ma1\_vol1} reaches 0.475 accuracy, 0.520 balanced accuracy, 0.049 MCC and 0.549 ROC-AUC. This suggests that the full-sample multi-scale variant is not automatically superior, even though multi-scale information is conceptually aligned with the Re-Imag benchmark.
+
+The full-sample findings support a cautious interpretation. The CNN does learn some directional information from chart images, especially in the I60 OHLC-only configuration, but the effect is not strong enough to justify an always-on trading recommendation. This is consistent with the empirical difficulty of financial prediction, especially in short-horizon settings where market microstructure noise and overlapping labels weaken the signal \cite{lopez_de_prado_afml,deeplob,sirignano_cont_universal}. Therefore, the full-sample result should be treated as evidence of a weak but non-zero signal, not as the primary thesis contribution.
+
+\subsection{Selective Tail-Rule Results}
+\label{subsec:tail_results}
+
+\input{inserted_assets/table_tail.tex}
+\input{inserted_assets/fig_frontier.tex}
+
+
+The strongest evidence appears when the model is evaluated as a selective decision-support filter rather than as an always-on predictor. Table~\ref{tab:tail-grid} reports the best rows from the tail-grid experiments. The original tail-grid result for \texttt{single\_I60\_ma0\_vol0} reaches approximately 0.693 accuracy, 0.694 balanced accuracy and 0.387 MCC at about 10.1\% coverage. At 5.1\% coverage, the same I60 model reaches 0.688 accuracy, 0.695 balanced accuracy and 0.384 MCC. These results are substantially stronger than the full-sample result and show the value of abstaining from ambiguous windows.
+
+The selective results are interpreted with coverage. A selective model does not claim that every intraday window is predictable. It claims that a small subset of probability-tail cases can be surfaced for inspection. This distinction is essential for both academic validity and practical decision-support design. Reporting selective accuracy without coverage would be misleading; therefore all selective results in this manuscript include coverage and row count.
+
+The broader selective result is important for practical use because it covers more cases than the strict finalist. Around 10.1\% coverage may be more operationally useful than 2.0\% coverage if the analyst wants a larger review queue. However, the strict-finalist result provides the cleanest high-confidence evidence and is therefore treated as the main quantitative headline.
+
+\subsection{Option B Strict Finalist}
+\label{subsec:strict_finalist}
+
+\input{inserted_assets/table_strict.tex}
+
+
+The strongest canonical result is the Option B strict finalist \texttt{single\_I120\_ma0\_vol0}. It achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows. The same row reports 0.834 balanced accuracy, 0.830 F1-score and 0.667 MCC. This result is reported in Table~\ref{tab:strict-finalists}.
+
+This is the main result of the revised experiment, but it must not be overclaimed. It is strong precisely because it is selective. The system abstains from approximately 98\% of eligible windows and surfaces only the most extreme predicted-up and predicted-down cases. The result therefore supports a decision-support interpretation rather than a universal forecasting interpretation.
+
+The I120 result also directly addresses the limitation of the original short input window. The longer 120-bar input gives the model more intraday context, and the strict probability-tail rule uses only the most confident probability regions. Therefore, the result is interpreted as a high-confidence selected-subset result:
+
+\begin{quote}
+The strict-finalist \texttt{single\_I120\_ma0\_vol0} model achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows.
+\end{quote}
+
+Reporting the result without coverage and row count would conceal the abstention design and selected-sample size. Because the strict finalist is based on only 54 selected rows, the estimate is based on a small selected sample. A Wilson binomial interval for 45/54 gives an approximate 95\% confidence interval of [0.713, 0.910]. This interval is interpreted cautiously because rolling-window dependence can reduce the effective sample size.
+
+The strict finalist is selected from a grid of model and coverage configurations. The reported Wilson interval describes binomial uncertainty for the locked 45/54 selected result but does not correct for model/coverage selection, multiple comparisons, or serial dependence among rolling windows. Therefore, the strict finalist is treated as exploratory selected-subset evidence that requires validation on additional regimes and contracts.
+
+\subsection{Multi-Scale Gated Results}
+\label{subsec:multiscale_results}
+
+The best multi-scale gated selective model is \texttt{multi\_gated\_20\_60\_120\_ma0\_vol0}. At 2.0\% coverage and 54 selected rows, it achieves 0.796 accuracy, 0.807 balanced accuracy and 0.603 MCC. This is weaker than the strict I120 finalist but still much stronger than full-sample classification. A richer multi-scale model, \texttt{multi\_gated\_20\_60\_120\_ma1\_vol1}, achieves 0.778 accuracy, 0.792 balanced accuracy, 0.750 F1-score and 0.570 MCC at the same 2.0\% coverage.
+
+The multi-scale results are useful even though they are not the absolute best. They show that the revised experiment genuinely moved beyond a single fixed 20-bar design. The saved checkpoint audit confirms that the multi-gated 20/60/120 models contain approximately 2.83 million parameter entries, while the I60 and I120 single-scale models contain approximately 397,000 and 988,000 entries respectively. This supports the methodological claim that the revised experiment explored richer Re-Imag-aligned input designs rather than merely re-reporting the old model.
+
+At the same time, the fact that the single I120 model outperforms the multi-gated models in the strict selected setting is informative. It suggests that more architectural complexity does not automatically improve performance in this data regime. The strongest result comes from a longer OHLC-only input and a strict selective rule, not from the richest image setting.
+
+\subsection{HOG, HAAR and Numeric Benchmark Comparison}
+\label{subsec:baseline_results}
+
+\input{inserted_assets/table_baselines.tex}
+\input{inserted_assets/fig_hog.tex}
+
+
+The baseline results help position the CNN contribution. The HOG baseline is a meaningful classical visual comparator. At 2.0\% coverage, the HOG tail baseline reaches 0.704 accuracy, 0.754 balanced accuracy and 0.455 MCC. This is stronger than the HAAR-like baseline and stronger than the full-sample numeric baselines, showing that visual structure in chart images contains useful information even outside a CNN.
+
+The HAAR-like feature baseline is weaker. Its best reported row reaches 0.574 accuracy, 0.582 balanced accuracy and 0.155 MCC at 5.1\% coverage. At 2.0\% coverage, the HAAR-like baseline performs poorly. This suggests that not all classical visual descriptors are equally suitable for the present chart-image setting.
+
+The comparison supports two conclusions. First, the CNN strict finalist is not merely benefiting from arbitrary selection; it outperforms HOG and HAAR-like comparators under the strongest selected setting. Second, the HOG result prevents an exaggerated claim that only deep CNN features are meaningful. A careful conclusion is that both classical visual features and CNN probabilities can extract information from chart images, but the best selective CNN result is stronger in the supplied experiment package.
+
+\subsection{Dashboard and Export Consistency Note}
+\label{subsec:dashboard_consistency}
+
+\input{inserted_assets/table_gradcam.tex}
+
+
+The dashboard and Grad-CAM export subset contain 54 selected prediction rows. Direct recomputation from \texttt{test\_gradcam\_index.csv} using \(p_{\text{up}}\geq 0.5\) gives 46 correct predictions out of 54, or 0.852 accuracy. The selected set contains 27 predicted-up and 27 predicted-down cases, with 29 true-up and 25 true-down labels. It is heavily concentrated in the SiZ5 contract: 53 of 54 selected Grad-CAM rows are SiZ5, and one row is SiU5.
+
+The 0.852 value is a direct recomputation from the dashboard/Grad-CAM export file \texttt{test\_gradcam\_index.csv} using \(p_{\text{up}} \geq 0.50\). The formal Option B grid in \texttt{optionB\_tail\_grid\_results.csv} and \texttt{optionB\_finalists.csv} reports 45 correct predictions out of 54, or 0.833 accuracy, and is used as the canonical quantitative result because it comes from the locked grid-evaluation output. The dashboard value is retained only as an export/recomputation consistency note. The exact row-level cause of the one-case discrepancy is not verifiable from the manuscript alone and should be checked against the source result files.
+
+This distinction is important for research integrity. The dashboard is an artifact for inspection, not the primary statistical table. The formal result table is therefore used for quantitative claims, while the dashboard subset is used to demonstrate case-level auditability.
+
+\subsection{Grad-CAM and Case-Level Visual Audit}
+\label{subsec:xai_results}
+
+\input{inserted_assets/fig_xai.tex}
+\input{inserted_assets/fig_xai_diag.tex}
+
+
+The Grad-CAM results are interpreted in two stages. The first stage is the strict quantitative foreground/background mask analysis. For the strict-best Option B selected cases, the Grad-CAM summary reports 54 background-focused rows, with average dilated foreground heat of 0.142 and average background heat of 0.858. Under this strict mask definition, the model appears background-heavy. This is a useful warning and should be reported transparently.
+
+The second stage is visual inspection of the heatmap-only, masked-overlay, full-overlay and selected raw-image batches. These image batches refine the interpretation. The heatmap-only images show broad activation regions. The masked overlays show that much of the retained signal follows visible chart structures. The full overlays show that the heat is usually anchored near trend segments, local turning areas and late-window breaks, but often spreads beyond the exact candle path. The selected raw images confirm the underlying chart structures.
+
+Three recurring case families appear in the visual audit. Group A contains samples 16301 and 16653--16657. These are mostly falling-path charts with later stabilization or rebound, and the activation follows descending trend segments. Group B contains samples 16901, 16902 and 16906--16908. These show oscillatory or mixed structures and distributed multi-region evidence. Group C contains samples 16958--16967, with the available selected raw subset through 16965. These show a flat or noisy pre-drop structure followed by a clear right-side collapse, making them strong examples for down-side selected signals.
+
+The final XAI conclusion is therefore deliberately nuanced:
+
+\begin{quote}
+Visual inspection of Grad-CAM outputs suggests that the CNN often attends to chart foreground structures and major trend segments, but the highlighted regions are typically broad and extend beyond the immediate candle path. Accordingly, Grad-CAM is most useful here as a diagnostic and decision-audit tool rather than as definitive proof of precise candle-level reasoning.
+\end{quote}
+
+This interpretation is consistent with the XAI literature on post-hoc explanation methods and saliency-map limitations \cite{selvaraju_gradcam,adebayo_sanity_checks,rudin_black_boxes,guidotti_survey,adadi_berrada_xai,arrieta_xai,lipton_mythos,miller_explanation}. It also addresses the methodological question of whether the model is focusing on the chart or the background. In the representative selected cases, the answer is not purely background-focused; it is chart-anchored but spatially diffuse.
+
+\subsection{Decision Support Studio Artifact}
+\label{subsec:dashboard_results}
+
+The final dashboard, named Decision Support Studio, operationalizes the project contribution. It contains 404 curated rows, including 54 selected prediction rows linked to Grad-CAM/dashboard evidence. It supports raw chart, full overlay, masked overlay and heatmap-only views. It also includes filters by contract, split, signal, confidence, XAI quality, date and search term.
+
+The dashboard displays KPI cards, a signal queue, a case-level decision studio, a benchmark ladder, a selective coverage frontier, XAI foreground/background diagnostics, queue composition, operational stance and an evidence hierarchy. These components are not cosmetic. They implement the management logic of the project: the analyst is shown what the model predicts, how confident the model is, how selective the rule is, and what visual evidence is available for inspection.
+
+The dashboard operationalizes the proposed decision-support framework by connecting selected CNN probability-tail cases to raw chart images, Grad-CAM heatmaps, masked overlays, confidence buckets, and coverage-performance analytics. Its purpose is not to automate trades, but to provide an auditable queue for analyst inspection.
+
+The artifact contribution is important because it converts model outputs into an operational analyst workflow with governance rules and caution messages. It shows a proposed solution, not only an empirical analysis.
+
+\subsection{Discussion of Findings}
+\label{subsec:discussion}
+
+The results support four main findings.
+
+First, the full-sample edge is modest. The best full-sample CNN reaches 0.587 accuracy and 0.580 ROC-AUC. This is better than the initial 20-bar result and better than simple numeric benchmarks, but it is not strong enough to justify universal prediction. This finding is important because it prevents the thesis from overclaiming.
+
+Second, selective prediction substantially improves decision relevance. The strict I120 finalist achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows. The broader I60 selective rule also achieves approximately 0.693 accuracy at about 10.1\% coverage. These results show that confidence-tail filtering can turn a weak full-sample signal into a more useful decision-support queue.
+
+Third, visual baselines matter. The HOG baseline performs meaningfully at 2.0\% coverage, with 0.704 accuracy and 0.455 MCC. This confirms that chart-image structure contains exploitable visual information, while the stronger CNN strict finalist suggests that learned CNN probabilities provide additional selective value.
+
+Fourth, Grad-CAM is useful but limited. It provides an audit trail that helps analysts inspect selected cases, but it does not prove causal reasoning or exact candle-level understanding. The correct XAI conclusion is chart-anchored but spatially diffuse.
+
+Together, these findings support the central contribution: an intraday futures decision-support artifact that combines chart-image CNN prediction, selective abstention, visual explanation and dashboard-based analyst workflow.
+
+\subsection{Limitations}
+\label{subsec:limitations}
+
+\input{inserted_assets/table_limits.tex}
+
+
+Several limitations must be stated clearly.
+
+First, the strongest result is based on a small selected sample. The strict finalist covers only 2.0\% of cases and contains 54 selected rows. A Wilson binomial interval for 45/54 gives an approximate 95\% confidence interval of [0.713, 0.910]. This interval is interpreted cautiously because rolling-window dependence can reduce the effective sample size. The result is suitable for selective decision support, but it cannot be generalized as full-sample predictive accuracy.
+
+Second, the selected Grad-CAM export is contract-concentrated. It contains 53 SiZ5 rows and one SiU5 row. Therefore, the image-level XAI evidence is not used to claim broad cross-contract generalization.
+
+Third, the dashboard/Grad-CAM recomputation gives 46/54 correct while the formal grid reports 45/54. The manuscript uses the grid result as canonical and treats the dashboard value as an export consistency note.
+
+Fourth, Grad-CAM is post-hoc and imperfect. It can indicate visual regions associated with a prediction, but it does not establish causal market reasoning. Saliency methods can be sensitive to architecture, preprocessing and visualization choices \cite{adebayo_sanity_checks,arrieta_xai,guidotti_survey}.
+
+Fifth, the value/turnover field is unavailable because it remains all zero in the supplied raw and derived data. Therefore, the study does not claim to exploit valid turnover information.
+
+Sixth, rolling-window samples are overlapping and serially dependent. Adjacent images can be visually similar while labels change, especially around turning points. Chronological splitting mitigates leakage risk, but the effective independence of samples is lower than the raw row count suggests.
+
+Seventh, the study does not establish a final transaction-cost-adjusted profitable trading strategy. No final confirmed Sharpe ratio, Sortino ratio, drawdown or cost-sensitive backtest package is available in the supplied final facts. Consequently, profitability is reserved for future work.
+
+\subsection{Future Work}
+\label{subsec:future_work}
+
+Future research can extend the project in five directions. First, the selective signals can be evaluated in a transaction-cost-aware economic backtest, including turnover, slippage, drawdown and risk-adjusted return. Second, the model can be tested across additional contracts and market regimes to examine generalization beyond the SiZ5-concentrated selected export. Third, XAI robustness can be evaluated with alternative methods such as Score-CAM, Integrated Gradients, SmoothGrad and saliency sanity checks \cite{wang_scorecam,sundararajan_integrated_gradients,smilkov_smoothgrad,adebayo_sanity_checks}. Fourth, selective prediction could be formalized further with calibrated abstention and selective-classification methods \cite{chow_reject,elyaniv_selective,geifman_selective}. Fifth, the dashboard artifact can be evaluated with analyst users to measure whether the explanation and queue design improve decision quality.
+
+\subsection{Conclusion}
+\label{subsec:conclusion}
+
+This study developed and evaluated an explainable selective decision-support artifact for intraday MOEX Si futures analysis. Building on the chart-image CNN logic of ``(Re-)Imag(in)ing Price Trends,'' the project adapted visual price representations to a fifteen-minute futures setting, expanded the model design with longer and multi-scale intraday inputs, compared CNNs with numeric and classical visual baselines, applied selective probability-tail rules and integrated Grad-CAM evidence into a dashboard workflow.
+
+The empirical results show that full-sample prediction remains modest: the best full-sample model, \texttt{single\_I60\_ma0\_vol0}, achieves 0.587 accuracy, 0.559 balanced accuracy, 0.126 MCC and 0.580 ROC-AUC. The selective setting is stronger. The strict finalist, \texttt{single\_I120\_ma0\_vol0}, achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows, with 0.834 balanced accuracy, 0.830 F1-score and 0.667 MCC. The best multi-scale gated model also performs strongly in the selected setting, while HOG provides a meaningful but weaker classical visual comparator.
+
+The XAI analysis supports a cautious conclusion. Grad-CAM outputs in representative selected cases are generally chart-anchored but spatially diffuse. They help analysts inspect model evidence, but they do not prove causal candlestick reasoning. The Decision Support Studio dashboard therefore uses XAI as a diagnostic and audit layer, not as a guarantee of correctness.
+
+The final contribution is not an automated trading system. It is a selective, auditable and human-in-the-loop decision-support artifact that abstains from ambiguous intraday windows and surfaces high-confidence cases for analyst review.
