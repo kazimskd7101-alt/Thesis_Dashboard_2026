@@ -1,0 +1,3073 @@
+Intraday Decision Support for Traders: Selective
+CNN-Based Directional Forecasting from
+Candlestick Chart Images
+Zeeshan Kazim
+Graduate School of Business, National Research University Higher School of Economics, Moscow, Russia
+E-mail: zeeshankazim101@gmail.com ORCID: 0009-0000-8850-6185
+Supervisor: Seungmin Jin
+Graduate School of Business, National Research University Higher School of Economics, Moscow, Russia
+
+Abstract—Intraday futures markets generate many noisy shorthorizon price windows, making always-on directional prediction
+difficult to use responsibly in trading analytics. This study
+develops a selective, explainable decision-support artifact for
+MOEX Si futures using candlestick chart images constructed
+from fifteen-minute data. Building on the chart-image learning
+framework of Jiang, Kelly, and Xiu’s “(Re-)Imag(in)ing Price
+Trends,” the study adapts convolutional neural networks to an
+intraday futures setting, evaluates longer and multi-scale input
+windows, compares CNN outputs with numeric, momentum, HOG,
+and HAAR-style baselines, and integrates Grad-CAM visual
+diagnostics into a human-in-the-loop dashboard called Decision
+Support Studio. The empirical package contains 775,621 raw oneminute rows, 89,628 fifteen-minute by-contract candles, 29,926
+clean continuous-front rows, and 502 clean trading dates. The
+best full-sample CNN achieves 0.587 accuracy, 0.559 balanced
+accuracy, 0.126 MCC, and 0.580 ROC-AUC, indicating only a
+modest full-sample edge. Stronger evidence appears under selective
+abstention: the strict I120 finalist achieves 0.833 accuracy at 2.0%
+coverage, corresponding to 54 selected rows, with 0.834 balanced
+accuracy, 0.830 F1-score, and 0.667 MCC. Grad-CAM inspection
+suggests chart-anchored but spatially diffuse attention, supporting
+visual audit rather than causal proof of candle-level reasoning.
+The contribution is a selective, auditable workflow for analyst
+inspection, not an automated trading system.
+Index Terms—Intraday decision support, candlestick chart
+images, convolutional neural networks, Grad-CAM, explainable AI,
+futures markets, selective prediction, MOEX Si futures, financial
+machine learning.
+
+I. Introduction
+Intraday futures trading decisions are made under conditions
+of high noise, short feedback cycles and substantial uncertainty.
+A trader or analyst observes a continuous stream of price
+changes, but only a small fraction of chart windows are likely
+to contain sufficiently strong directional evidence to justify
+focused attention. Conventional machine-learning systems often
+convert this environment into a simple classification task: for
+every rolling window, predict whether the future return will
+be positive or non-positive. Such an approach is technically
+convenient, but it is not necessarily aligned with the practical
+decision problem. In a noisy intraday market, a weak prediction
+for every window may be less useful than a smaller set of
+high-confidence cases that can be inspected, explained and
+governed.
+
+This thesis develops an explainable selective decision-support
+artifact for intraday MOEX Si futures analysis. The system
+adapts the chart-image forecasting logic of Jiang, Kelly and
+Xiu’s “(Re-)Imag(in)ing Price Trends” [1] to a fifteen-minute
+futures setting. It represents recent Si futures price histories
+as candlestick or chart images, trains CNN-based directional
+models, applies selective probability-tail rules to abstain from
+ambiguous windows, audits selected cases with Grad-CAM
+visualizations, and presents the result in a human-in-the-loop
+dashboard called Decision Support Studio. The proposed
+artifact is not an automated trading system. It is a selective,
+auditable workflow for analyst inspection.
+The central argument is deliberately cautious. The fullsample forecasting edge is modest. The best full-sample CNN in
+the revised experiment, single_I60_ma0_vol0, achieves
+0.587 accuracy, 0.559 balanced accuracy, 0.126 MCC and 0.580
+ROC-AUC. This result improves on the initial 20-bar baseline,
+but it does not justify a universal forecasting claim. The stronger
+result appears when the system is used selectively. The strictfinalist model, single_I120_ma0_vol0, achieves 0.833
+accuracy at 2.0% coverage, corresponding to 54 selected rows,
+with 0.834 balanced accuracy, 0.830 F1-score and 0.667 MCC.
+The practical contribution is therefore not that every intraday
+window can be predicted reliably. The contribution is that
+a selective model-dashboard artifact can abstain from most
+ambiguous cases and surface a small set of stronger signals
+for human review.
+A. Relevance of the Topic
+The topic is relevant for both academic and practical
+reasons. Academically, financial machine learning increasingly
+studies deep learning, time-series representation and visual
+price-pattern extraction, but short-horizon financial prediction
+remains difficult because of low signal-to-noise ratios, nonstationarity and evaluation risks [2]–[4]. The chart-image
+approach of “(Re-)Imag(in)ing Price Trends” provides a strong
+benchmark for representing price histories as images and
+learning return-direction signals with CNNs [1]. However,
+adapting this approach to intraday futures requires additional
+design choices: contract rolls, shorter horizons, overlapping
+
+windows, limited valid volume/value information, selective selective prediction, Grad-CAM-based audit and dashboardprediction and operational interpretability.
+based decision support. This thesis is positioned in that gap.
+Practically, traders and trading analysts need decision-support
+C. Research Problem and Gap
+tools that do not merely output predictions. They need tools
+The research problem can be stated as follows. Intraday
+that show when a signal is strong enough to inspect, how
+much of the data stream is being selected, what the model futures price windows are noisy and heavily overlapping, so
+confidence is, and whether the visual evidence is plausible. an always-on CNN classifier is unlikely to provide reliable
+This is especially important for post-hoc explainability methods advice for every decision point. At the same time, chartsuch as Grad-CAM, which can support inspection but should image CNNs may still contain useful information in highnot be treated as proof of causal model reasoning [5]–[7]. A confidence probability regions. The project problem is therefore
+dashboard that connects selected model outputs to raw chart to design and evaluate a system that does not overclaim
+images, overlays, heatmaps, confidence buckets and coverage universal prediction, but instead selectively surfaces stronger
+analytics is therefore a management-relevant artifact, not just cases and makes them auditable.
+Existing research provides several partial answers. Charta visualization accessory.
+The topic also fits a project-based analytics format. The ap- image CNNs have been shown to be useful in daily equity
+plied problem is the design of a reliable management/analytics settings [1]. High-frequency deep learning studies show that
+procedure for using intraday model signals in a cautious and deep models can learn from intraday market structure [11], [13].
+auditable way. The proposed solution is a system artifact that XAI studies provide methods for inspecting neural-network
+combines data engineering, model training, selective rules, XAI outputs [5], [20]. Design-science research explains how artifacts
+can be evaluated in applied organizational settings [22], [23].
+diagnostics and analyst workflow design.
+However, these streams do not fully answer how to build
+a selective, explainable, human-in-the-loop decision-support
+B. Degree of Academic Development
+artifact for intraday futures chart-image analysis.
+The academic foundation of this thesis spans several research
+The gap addressed by this thesis is therefore:
+streams. The first stream is financial machine learning and
+Prior work shows that chart-image CNNs can forecast
+technical price-pattern analysis. Studies of technical trading
+returns in equity markets, but less is known about
+rules and chart patterns provide an early empirical foundation
+selective, explainable, human-in-the-loop intraday
+for the idea that price histories may contain visually or
+futures decision support using multi-scale chart imstatistically recognizable structures [8], [9]. Modern financial
+ages, Grad-CAM audit and dashboard-based analyst
+machine learning extends this literature with more flexible
+workflow.
+models and stronger warnings about validation and overfitting
+D. Purpose and Objectives
+[2], [10].
+The second stream is deep learning for financial time-series
+forecasting. Surveys by Sezer, Gudelek and Ozbayoglu and
+by Lim and Zohren document the growth of CNN, recurrent
+and hybrid methods in financial forecasting and time-series
+prediction [3], [4]. The third stream is chart-image learning,
+with Jiang, Kelly and Xiu’s Re-Imag study serving as the
+main methodological benchmark [1]. Their work motivates
+the conversion of market histories into images and the use of
+CNNs to learn visual price-pattern information.
+The fourth stream is intraday and high-frequency financial
+prediction. Research on limit-order-book prediction, DeepLOB
+and high-frequency price formation shows that intraday data
+can contain learnable structure, while also emphasizing the
+difficulty of the task [11]–[13]. The fifth stream is time-series
+representation and classification, including time-series-to-image
+methods, InceptionTime, ROCKET, shapelet methods and other
+representations [14]–[17]. The sixth stream is explainable
+AI, including Grad-CAM, saliency-map methods and surveys
+of XAI in general and in finance [18]–[21]. Finally, design
+science and decision-support research provide the projectartifact framing for the dashboard and human-in-the-loop
+workflow [22]–[24].
+Despite this broad foundation, there remains a gap at
+the intersection of intraday futures chart-image forecasting,
+
+The purpose of this thesis is to develop and evaluate an explainable selective decision-support artifact for intraday MOEX
+Si futures analysis using CNN-based directional forecasting
+from candlestick chart images.
+To achieve this purpose, the thesis pursues the following
+objectives:
+1) construct a chronology-aware MOEX Si continuous-front
+dataset from raw one-minute futures records and fifteenminute candles;
+2) generate rolling chart-image representations and futuredirection labels suitable for CNN-based classification;
+3) adapt the Re-Imag-style chart-image learning approach to
+intraday futures through I60, I120 and multi-scale input
+designs;
+4) train and evaluate CNN models under full-sample and
+selective probability-tail settings;
+5) compare CNN results with numeric, momentum, HOG
+and HAAR-style baselines;
+6) audit selected model decisions using Grad-CAM
+heatmaps, full overlays, masked overlays and raw image
+inspection;
+7) implement a Decision Support Studio dashboard that
+links selected cases to probabilities, confidence buckets,
+XAI views and analyst workflow;
+
+Research and Decision-Support Pipeline
+
+Raw 1-min
+Si data
+
+15-min
+OHLC bars
+
+Continuous
+front
+
+Chart
+images
+
+CNN +
+baselines
+
+Selective
+tail rule
+
+Grad-CAM
+audit
+
+Decision Support
+Studio
+
+Chronological train/validation/test handling; ambiguous windows are abstained from rather than forced into recommendations.
+
+Fig. 1. Overall research and decision-support pipeline from raw one-minute data to the Decision Support Studio. The final block is analyst-facing decision
+support, not automated trade execution.
+
+8) evaluate the system’s effectiveness, limitations and practical relevance as a human-in-the-loop decision-support
+artifact.
+These objectives map directly to the five-chapter structure.
+Chapter 2 reviews the literature and practices. Chapter 3 defines
+the methodology. Chapter 4 describes the artifact. Chapter 5
+evaluates the results and limitations.
+E. Research Questions
+The study is guided by three research questions:
+RQ1: Can chronology-aware candlestick-chart CNN models
+provide useful full-sample directional information
+for intraday MOEX Si futures when contract rolls,
+intraday session structure and benchmark comparisons
+are handled conservatively?
+RQ2: Does selective probability-tail abstention improve the
+practical decision-support value of the forecasting
+artifact compared with compulsory full-coverage
+prediction?
+RQ3: Can Grad-CAM visual diagnostics and dashboardbased case inspection make selected CNN signals
+auditable for human analysts while avoiding strong
+claims of precise candle-level or causal interpretability?
+These questions preserve the thesis’s cautious framing: the
+aim is not to prove automated profitability, but to evaluate
+whether selected, visually auditable cases can support analyst
+inspection.
+F. Object and Subject of the Study
+The object of the study is the intraday trading-analytics
+decision environment for MOEX Si futures, represented by the
+task of interpreting rolling fifteen-minute price histories and
+deciding which cases merit analyst attention.
+The subject of the study is the design and evaluation of
+an explainable selective decision-support system that uses
+candlestick chart images, CNN probability estimates, selective
+
+probability-tail rules, Grad-CAM diagnostics and dashboardbased case inspection to support intraday directional analysis.
+This distinction is important. The thesis is not only about
+a model architecture. It is about the use of a model inside a
+practical decision-support workflow.
+G. Research Methods
+The thesis uses a mixed project-research methodology. The
+empirical component includes data preprocessing, continuousfront construction, chart-image generation, supervised learning,
+baseline comparison and performance evaluation. The modeling
+component includes CNN classifiers, multi-scale input designs,
+numeric/logistic baselines, momentum baselines, HOG features
+and HAAR-like features. The evaluation component uses
+accuracy, balanced accuracy, precision, recall, F1-score, MCC,
+ROC-AUC where available, coverage and selected row counts.
+The explainability component uses Grad-CAM visual diagnostics. Grad-CAM outputs are analyzed through heatmaponly images, full overlays, masked overlays and raw chart
+comparisons. The project component uses design-science logic
+to build and evaluate the Decision Support Studio dashboard
+as an artifact for analyst inspection. The final interpretation
+combines quantitative performance evidence with qualitative
+and visual case-level audit.
+H. Information Sources and Empirical Materials
+The empirical materials consist of MOEX Si futures data
+and derived experiment files. The raw data contain 775,621
+one-minute rows. These are aggregated to 89,628 fifteen-minute
+by-contract candles and then to a clean continuous-front table
+with 29,926 rows over 502 clean trading dates. The contract roll
+sequence is SiH4, SiM4, SiU4, SiZ4, SiH5, SiM5, SiU5 and
+SiZ5. The reproducibility package contains 51 files, including
+result files, model files, derived-data files and raw-data files.
+The experiment materials include I60/R20 and I120/R20
+manifests, numeric benchmark features, CNN model checkpoints, tail-grid result files, HOG/HAAR baseline outputs, GradCAM index files, raw image batches, heatmap-only images, full
+
+overlays, masked overlays, selected raw images and the final
+dashboard files. The academic materials include more than
+50 supplied papers covering financial machine learning, chartimage forecasting, high-frequency deep learning, time-series
+representation, XAI, saliency limitations and design science.
+I. Academic Novelty
+The thesis does not claim novelty in inventing CNNs, GradCAM or chart-image learning. Its novelty lies in the adaptation
+and integration of these components for a specific intraday
+futures decision-support problem. The main novelty elements
+are:
+1) adaptation of Re-Imag-style chart-image forecasting to
+intraday MOEX Si futures;
+2) use of multi-scale intraday input windows and selective
+probability-tail rules for decision support;
+3) comparison of CNN probabilities with numeric, momentum, HOG and HAAR-style baselines in the same project
+package;
+4) Grad-CAM audit of selected high-confidence cases with
+raw, heatmap, overlay and masked views;
+5) implementation of a dashboard artifact that operationalizes selective, explainable and human-in-the-loop intraday
+decision support.
+The novelty is therefore primarily methodological and
+artifact-based: the thesis integrates existing ideas into a reproducible, domain-specific decision-support workflow and
+evaluates that workflow with actual Si futures data.
+J. Practical Value
+The practical value of the thesis is the Decision Support
+Studio artifact and its associated operating procedure. The
+dashboard transforms model outputs into a filtered analyst
+queue. It allows the user to inspect raw chart images, model
+probabilities, selected signal direction, confidence buckets,
+Grad-CAM heatmaps, full overlays, masked overlays and
+aggregate performance panels. This helps prevent the model
+from being interpreted as a black-box trading command.
+For a trading analytics team, the artifact demonstrates
+how machine-learning signals can be governed. It shows that
+selective coverage should be visible, that XAI should be used
+for diagnostic review rather than as proof of correctness, and
+that ambiguous windows should be abstained from rather than
+forced into recommendations. This has practical relevance even
+though the thesis does not claim final transaction-cost-adjusted
+profitability.
+K. Structure of the Work
+The thesis is organized into five chapters.
+Chapter 1 introduces the problem, relevance, research gap,
+purpose, objectives, object, subject, methods, information
+sources, novelty and practical value.
+Chapter 2 analyzes best practices and academic literature.
+It reviews financial machine learning, chart-image prediction,
+intraday deep learning, time-series-to-image representation,
+
+visual baselines, XAI limitations and decision-support artifact
+design.
+Chapter 3 presents the methodology for project implementation. It describes the diagnostic study, data provenance,
+continuous-front construction, image and label design, Re-Imag
+alignment, CNN and baseline models, selective probability-tail
+rule, Grad-CAM diagnostics and evaluation metrics.
+Chapter 4 describes the solution architecture and decisionsupport artifact. It presents the Decision Support Studio
+dashboard, data-to-decision pipeline, image audit workflow,
+analyst operating procedure and governance rules.
+Chapter 5 reports the results, discussion, limitations and
+conclusion. It evaluates the old baseline, full-sample models,
+selective tail rules, strict finalist, multi-scale gated models,
+HOG/HAAR baselines, dashboard consistency and Grad-CAM
+visual audit, then states limitations and future work.
+II. Analysis of Best Practices and Academic Literature
+This chapter positions the project within two connected
+bodies of knowledge. The first is academic research on financial
+machine learning, chart-image forecasting, intraday market
+prediction, time-series representation and explainable artificial
+intelligence. The second is the practical decision-support
+tradition in which analytical systems are designed not only to
+produce predictions, but also to organize evidence, support user
+judgment, and control the risk of over-reliance on automated
+outputs.
+The review is structured as a taxonomy rather than as a
+chronological list of papers, following the logic of systematic
+review guidelines while remaining focused on the project
+problem [25], [26]. This is important for the project-based
+nature of the thesis. The practical problem is not simply to
+train a CNN. The practical problem is to design a selective,
+auditable decision-support artifact for intraday trading analysis.
+Therefore, the literature is reviewed through six themes:
+financial machine learning and chart-image prediction; intraday
+and high-frequency financial deep learning; time-series-toimage learning and visual feature baselines; explainable AI
+and saliency-map limitations; decision-support systems and
+dashboard artifacts; and the final research gap.
+A. Financial Machine Learning and Chart-Image Prediction
+Financial forecasting is a difficult domain for machine learning because the signal-to-noise ratio is low, labels are unstable,
+and evaluation can be distorted by leakage, non-stationarity and
+selection bias. Modern financial machine learning therefore
+emphasizes careful data handling, chronological validation
+and skepticism toward purely in-sample performance [2], [10],
+[27]. Deep learning has expanded the model families available
+for financial forecasting, including supervised forecasting and
+reinforcement-learning approaches to trading and portfolio
+management, but the literature continues to stress that predictive
+performance should be interpreted cautiously, especially when
+the task is short-horizon return direction [3], [4], [28]–[30].
+A central strand of the literature studies whether visual representations of prices contain predictive information. Traditional
+
+(Re-)Imag(in)ing Price Trends Alignment and Adaptation
+Re-Imag benchmark
+
+This study
+
+Daily U.S. equities
+
+Intraday MOEX Si futures
+
+OHLC/volume chart images
+
+15-min candlestick images
+
+5/20/60-day horizons
+
+I60/I120 and 20/60/120 windows
+
+CNN return-direction model
+
+CNN + selective abstention
+
+Portfolio-style evaluation
+
+Dashboard-based decision support
+
+Fig. 2. Methodological alignment between Jiang, Kelly and Xiu’s Re-Imag chart-image design and the present intraday MOEX Si futures decision-support
+study. Re-Imag uses daily equity chart images and portfolio-style evaluation, while this study uses intraday futures images and selective dashboard-based
+decision support.
+
+technical analysis assumes that historical price and volume
+patterns may contain recurring structures. Earlier empirical
+studies of technical trading rules and chart patterns provide a
+foundation for treating price shapes as objects of analysis [8],
+[9]. However, these studies typically rely on predefined rules
+or handcrafted pattern definitions. Machine learning changes
+this setting by allowing representations to be learned from data
+rather than specified entirely by the researcher.
+The primary methodological benchmark for this thesis is
+Jiang, Kelly and Xiu’s “(Re-)Imag(in)ing Price Trends” [1].
+Their study converts stock price histories into chart images
+and trains CNNs to forecast return direction. The paper is
+central to the present thesis for four reasons. First, it provides
+a rigorous justification for treating financial price histories as
+images. Second, it demonstrates that CNNs can learn visual
+price-pattern information from OHLC and volume-style chart
+representations. Third, it evaluates multiple visual horizons,
+including 5-, 20- and 60-day image windows, which motivates
+the multi-scale extension in the present project. Fourth, it
+provides a benchmark for comparing CNN image learning
+with more traditional financial predictors and visual feature
+alternatives.
+This thesis follows the core idea of Re-Imag but adapts it
+to a different applied problem. The benchmark study operates
+in a daily equity setting, while the present study works with
+fifteen-minute MOEX Si futures data. The benchmark study is
+oriented toward return prediction and portfolio evaluation, while
+this thesis is oriented toward selective decision support and
+analyst inspection. The difference is not incidental: it defines
+the contribution. The present project asks whether chart-image
+CNN logic can be transformed into an intraday futures decision-
+
+support artifact that abstains from ambiguous cases and links
+selected cases to raw chart and XAI evidence.
+Financial time-series forecasting surveys provide further
+context. Sezer, Gudelek and Ozbayoglu review deep learning
+approaches in financial forecasting and show the importance of
+CNNs, recurrent models and hybrid architectures in priceprediction applications [3]. Lim and Zohren review deep
+learning for time-series forecasting more broadly, emphasizing
+representation learning, sequence modeling, interpretability
+and uncertainty [4]. These surveys support the methodological
+choice to use deep visual models, but they also reinforce that
+forecasting systems should be evaluated in relation to horizon,
+data regime and decision use case rather than by one accuracy
+score alone.
+The literature therefore suggests a cautious principle: chartimage CNNs are a legitimate research direction, but their
+practical value depends on the decision context, validation
+design and interpretation layer. This principle directly motivates
+the selective and explainable design of the present system.
+B. Intraday and High-Frequency Financial Deep Learning
+Intraday financial prediction differs from daily prediction
+because short-horizon returns are affected by microstructure
+effects, liquidity, order flow, intraday seasonality and marketimpact considerations. Market microstructure theory emphasizes that observed prices reflect the interaction of information,
+liquidity provision and trading mechanisms [31]. For this
+reason, intraday forecasting models often rely on more detailed
+representations of market dynamics than daily models.
+Deep learning has been widely applied to high-frequency and
+limit-order-book data. DeepLOB is a prominent example, using
+
+deep neural networks to forecast price movement from limitorder-book states [11]. Other studies use CNNs and recurrent
+models to learn structure from order-book depth, order-flow
+dynamics and high-frequency price formation [12], [13], [32].
+Support-vector and other machine-learning approaches have
+also been used to model limit-order-book dynamics [33]. These
+studies show that deep models can extract structure from highdimensional intraday market data, but they also highlight the
+complexity of evaluation under market microstructure noise.
+The present thesis differs from limit-order-book prediction
+because it does not use order-book depth or tick-level order flow.
+Instead, it uses fifteen-minute OHLC chart images constructed
+from Si futures candles. This is a coarser representation, but it is
+more directly connected to trader-facing chart interpretation and
+dashboard-based visual audit. The model therefore sits between
+daily chart-image learning and high-frequency microstructure
+modeling. It is intraday, but not order-book based.
+This intermediate position has practical advantages and
+limitations. The advantage is interpretability and operational
+simplicity: chart images can be inspected by an analyst and
+linked to familiar candlestick or price-path structures. The
+limitation is that some microstructure information is lost. The
+value/turnover field is unavailable in the supplied data because
+it remains all zero, so the final system cannot claim to exploit
+valid turnover or transaction-value information. This limitation
+strengthens the case for caution and for the use of abstention
+rather than universal prediction.
+The intraday literature also supports the need for chronological validation. Random train/test splitting would be inappropriate because adjacent windows overlap and future information
+could leak into training. The present project therefore uses
+chronological data organization and treats overlapping images
+as a source of dependence that must be discussed, not ignored.
+C. Time-Series-to-Image Learning and Visual Feature Baselines
+A broader time-series representation literature supports
+the conversion of temporal data into images. Wang and
+Oates proposed encoding time series as images, showing that
+visual representations can enable CNN-based classification of
+temporal patterns [14]. Related representations include Gramian
+Angular Fields, Markov Transition Fields and recurrence
+plots, all of which transform temporal relationships into twodimensional structures that can be processed by computervision models [34], [35]. In financial applications, Sezer and
+Ozbayoglu show how time-series-to-image approaches can be
+used for trading-related prediction tasks [36].
+Deep learning for time-series classification is also relevant.
+Fawaz et al. review deep neural networks for time-series
+classification and show that CNN-style architectures are a
+major family of models for learning temporal patterns [15].
+InceptionTime and ROCKET represent two important directions
+in time-series classification: deep convolutional ensembles and
+large randomized convolutional feature transformations [16],
+[17]. The hctsa framework and shapelet methods represent
+another family of approaches based on large-scale feature
+
+extraction or discriminative subsequences [37]–[40]. Distancebased methods such as dynamic time warping and DBA provide
+additional baselines for comparing temporal shapes [41], [42].
+The present thesis does not attempt to benchmark every timeseries classification method, nor does it use conditional visualreasoning layers such as FiLM; those architectures remain
+adjacent background for future model extensions [43]. Instead,
+it uses the literature to justify the representation choice and
+to interpret visual baselines. The chart image is a direct
+visual representation, not a transformed recurrence or Gramian
+field. It is selected because the project is explicitly traderfacing: analysts can inspect candlestick-style chart images more
+naturally than abstract time-series images.
+Classical computer-vision features are used as important
+comparators. HOG captures distributions of local gradient
+orientations and is well suited for edge and shape information
+[44]. HAAR-like features summarize contrast patterns over
+rectangular regions and have a long history in computer vision
+[45]. In the Re-Imag context, such classical visual features
+are relevant because they test whether predictive information
+can be extracted from chart geometry without a deep CNN.
+In this thesis, the HOG tail baseline performs meaningfully,
+reaching 0.704 accuracy, 0.754 balanced accuracy and 0.455
+MCC at 2.0% coverage. HAAR-like features are weaker, with
+the best reported row reaching 0.574 accuracy, 0.582 balanced
+accuracy and 0.155 MCC at 5.1% coverage. This comparison
+supports a balanced conclusion: visual structure matters, but the
+strongest selective CNN result remains superior in the supplied
+experiment package.
+D. Explainable AI and Saliency-Map Limitations
+Explainability is essential in this thesis because the proposed
+artifact is intended for human-in-the-loop decision support. A
+black-box score alone is insufficient for analyst trust, especially
+in a financial domain where model errors can have operational
+consequences. General XAI surveys define the field and
+distinguish transparent models, post-hoc explanations, local
+explanations and global explanations [18]–[20]. XAI in finance
+is particularly relevant because financial applications require
+accountability, risk awareness and practical interpretability [21].
+For deep neural networks, visual explanation methods are
+a major class of post-hoc interpretation. Class Activation
+Mapping (CAM) and Grad-CAM highlight image regions
+associated with class-discriminative decisions [5], [46]. GradCAM++ refines Grad-CAM for improved localization in some
+settings [47]. Score-CAM, SmoothGrad, Layer-wise Relevance
+Propagation, Integrated Gradients, DeepLIFT, LIME, SHAP,
+counterfactual explanations, influence functions and TCAV
+represent related or alternative approaches for interpreting blackbox models [48]–[57]. These methods vary in assumptions,
+computational cost and explanation target.
+However, the XAI literature also warns against overclaiming
+saliency maps. Adebayo et al. show that some saliency
+methods can fail sanity checks, meaning that visually plausible
+explanations do not always reflect learned model parameters [6].
+Lipton cautions that interpretability is often used imprecisely,
+
+and Rudin argues that in high-stakes applications, interpretable
+models should be preferred when possible rather than relying
+uncritically on explanations of black boxes [7], [58]. Miller
+emphasizes that human explanations are selective, contrastive
+and social, not merely technical heatmaps [59]. These works
+are critical for this thesis because they justify a cautious
+interpretation of Grad-CAM.
+The present project uses Grad-CAM as an audit layer, not
+as proof of causal reasoning. Initial analysis of heatmaponly images suggested broad or possibly background-heavy
+activation. Later masked-overlay, full-overlay and raw selectedcase images refined the interpretation: in representative selected
+cases, activation is generally chart-anchored but spatially diffuse.
+This means the model is not simply focusing on empty
+background, but the highlighted regions extend beyond the
+precise candle path. Accordingly, Grad-CAM is interpreted as
+support for pattern-level inspection and diagnostic review, not
+as evidence of exact candle-level causal explanation.
+A closely related applied precedent is the KOSPI 200 futures
+CNN and Grad-CAM study, which is useful because it connects
+futures prediction, CNNs, chart-style data and Grad-CAM-style
+visualization [60]. The present thesis differs by emphasizing
+selective abstention, dashboard workflow, and MOEX Si futures
+decision support.
+
+These components make the artifact practical and academically
+defensible.
+This decision-support framing also protects the thesis from
+overclaiming. The dashboard does not present the CNN as a
+fully automated trading agent. Instead, it supports analyst triage.
+A surfaced case is an object for review, not a command to trade.
+This is consistent with the empirical results: the full-sample
+model edge is modest, while selected tail cases are stronger
+but limited in coverage.
+F. Research Gap and Positioning
+
+The reviewed literature establishes five points. First, financial
+machine learning can extract patterns from market data, but
+evaluation must be cautious because of noise, leakage and overfitting risk. Second, chart-image CNNs are a strong and relevant
+methodological direction, especially after “(Re-)Imag(in)ing
+Price Trends.” Third, intraday forecasting is more difficult
+than daily chart prediction because of microstructure noise,
+overlapping windows and short-horizon instability. Fourth,
+XAI can support audit and communication but cannot prove
+causal reasoning by itself. Fifth, project-based decision-support
+artifacts require more than model accuracy: they require
+workflow, governance and human inspection.
+The gap addressed by this thesis is therefore the following:
+Prior work shows that chart-image CNNs can forecast
+returns in equity markets, but less is known about
+E. Decision-Support Systems, Human-in-the-Loop Analytics
+selective, explainable, human-in-the-loop intraday
+and Dashboard Artifacts
+futures decision support using multi-scale chart imThe project-based contribution of this thesis is not only a
+ages, Grad-CAM audit and dashboard-based analyst
+model, but an artifact. Decision-support systems translate data
+workflow.
+and models into structured assistance for human decisions. In
+The present study addresses this gap by adapting the chartthis thesis, the Decision Support Studio dashboard performs image CNN logic of Jiang, Kelly and Xiu to MOEX Si
+that translation by organizing selected signals, displaying model futures, extending it with multi-scale intraday input windows,
+confidence, showing visual evidence, and making limitations comparing it with numeric and visual baselines, using selective
+visible.
+probability-tail rules to abstain from ambiguous windows,
+Design science research provides an appropriate framework auditing selected cases with Grad-CAM, and implementing
+for this artifact orientation. Hevner et al. describe design the Decision Support Studio dashboard as a practical decisionscience as the creation and evaluation of artifacts intended support artifact.
+to solve relevant organizational problems [22]. Peffers et al.
+The resulting contribution is deliberately bounded. The
+provide a design science research methodology that includes thesis does not claim to prove market inefficiency, create
+problem identification, objectives, design and development, an automated profitable trading system or establish causal
+demonstration, evaluation and communication [23]. FEDS candlestick reasoning. It claims to design and evaluate a
+emphasizes that artifact evaluation should be aligned with selective, auditable and human-in-the-loop decision-support
+the purpose and context of the designed system [24]. These system for intraday futures analysis.
+frameworks support the thesis’s project-based structure: the
+III. Methodology for Project Implementation
+dashboard is evaluated not as a commercial product but as a
+research artifact that operationalizes selective intraday decision
+This chapter defines the project implementation methodology
+support.
+used to build and evaluate the proposed intraday decisionHuman-in-the-loop analytics are particularly important when support artifact. The methodology is designed to satisfy two
+model predictions are uncertain and explanations are imperfect. requirements simultaneously. First, it follows the empirical
+A responsible dashboard should not hide uncertainty. It should discipline expected in financial machine learning: chronological
+show coverage, sample size, confidence, baseline comparison data handling, clear label definition, separation between training,
+and explanation quality. The Decision Support Studio is validation and testing, and evaluation by metrics beyond raw
+designed around this principle. It includes KPI cards, a signal accuracy. Second, it follows a project-based design logic: the
+queue, case-level image views, benchmark ladder, selective model is not treated as a stand-alone algorithm, but as one
+coverage frontier, XAI diagnostics and governance notes. component in a human-in-the-loop decision-support workflow.
+
+The methodological benchmark for this study is the chart- B. External and Internal Decision Environment
+image learning framework introduced by Jiang, Kelly and Xiu
+The external environment consists of intraday futures price
+in “(Re-)Imag(in)ing Price Trends” [1]. Their work shows that formation under short-horizon uncertainty. Unlike daily equity
+price histories can be represented as visual chart images and prediction, intraday futures analysis is affected by microstrucprocessed by convolutional neural networks (CNNs) rather ture noise, concentrated activity periods, overlapping rolling
+than being reduced only to hand-crafted tabular features. The windows and changing contract liquidity. These characteristics
+present study adapts that idea to an intraday futures setting. make universal high-accuracy prediction unrealistic. Prior
+The adaptation is not a direct replication, because the market, research on high-frequency and limit-order-book forecasting
+time scale, decision problem and output artifact are different. shows that deep learning can extract structure from financial
+The benchmark study focuses on daily equity chart images microstructure data, but the task remains sensitive to horizon
+and portfolio-style evaluation, whereas this thesis focuses on choice, representation, and evaluation design [11]–[13], [31].
+15-minute MOEX Si futures chart images, selective directional
+The internal environment is the decision process surrounding
+support and analyst-facing visual audit.
+the model. A trader or analyst does not need every model
+output to become a recommendation. Instead, the user needs a
+system that distinguishes between ordinary ambiguous windows
+A. Applied Decision Problem and Diagnostic Study
+and unusual windows where the model expresses stronger
+The practical problem addressed in this project is the directional confidence. The system must also show when the
+difficulty of using short-horizon predictive signals in an intraday evidence is weak, diffuse, or difficult to interpret. This motivates
+trading or trading-analytics environment. Intraday futures the use of selective prediction and human-in-the-loop inspection.
+markets generate many candidate decision points, but most It also motivates a dashboard artifact rather than only a table of
+of them are ambiguous. A simple always-on classifier may machine-learning scores. In design-science terms, the dashboard
+provide a prediction for every rolling window, yet a prediction is part of the artifact being evaluated, because it translates
+alone is not necessarily useful for management or trading model outputs into a practical decision process [22]–[24].
+support if the analyst cannot see the model confidence, the
+model’s visual evidence, the expected coverage of the rule, and
+the conditions under which the system should abstain.
+The diagnostic interpretation is therefore that the applied
+trading-analytics decision environment has a signal-quality
+problem rather than merely a model-accuracy problem. In such
+an environment, the operational question is not only whether
+a CNN can classify every future return direction. The more
+relevant project question is whether a system can filter a large
+stream of noisy intraday chart windows into a smaller queue of
+high-confidence cases that an analyst can inspect. This design
+is consistent with recent cautions in financial machine learning,
+where raw backtest performance can be overstated if evaluation
+design, sample dependence, selection bias and model risk are
+not handled carefully [2], [10].
+The internal decision environment is represented by an
+analyst or trader who needs: (i) a small set of surfaced cases
+rather than thousands of raw windows; (ii) confidence and
+coverage information; (iii) comparison with baselines; (iv) a
+visual audit trail linking the model decision to the original chart;
+and (v) governance rules warning against blind automation. The
+external environment is represented by the MOEX Si futures
+market, where intraday price movement is noisy, contract rolls
+must be handled, and short-horizon labels may change even
+when adjacent rolling chart images are visually similar.
+Consequently, the methodology is built around an abstaining
+decision-support design. The model first produces probabilities
+for all eligible windows. A selective probability-tail rule then
+keeps only the most extreme predicted-up and predicted-down
+cases. These retained cases are passed to a dashboard and XAI
+inspection workflow. The system therefore supports triage and
+audit rather than fully automated trading.
+
+C. Data Provenance and Continuous-Front Construction
+The empirical basis of the study is a package of MOEX Si
+futures data and derived artifacts. The raw data contain 775,621
+one-minute rows across multiple futures contracts. These are
+aggregated into 89,628 fifteen-minute by-contract candles. A
+clean continuous-front series is then constructed, resulting in
+29,926 fifteen-minute observations over 502 clean trading dates.
+The front-contract sequence used in the project is:
+SiH4 → SiM4 → SiU4 → SiZ4
+→ SiH5 → SiM5 → SiU5 → SiZ5.
+The continuous-front construction is necessary because the
+purpose of the project is to build a single chronological intraday
+decision-support workflow rather than a separate model for
+each isolated contract. Contract rolls are therefore treated as
+part of the data-engineering problem. Table I summarizes the
+data lineage, while Table II reports the continuous-front roll
+schedule used to construct the chronological futures series.
+The reproducibility package contains 51 files: 21 result files, 8
+model files, 7 derived-data files and 15 raw-data files.
+A key data limitation is that the value or turnover column
+remains zero in the raw, fifteen-minute and clean-front tables.
+It is therefore not used as a valid predictive feature. This is
+important because some chart-image methods include volume
+or trading activity panels. In the present project, any feature
+relying directly on the unavailable value field must be treated
+as absent or as a limitation, not as a measured source of
+information.
+D. Image Construction and Label Definition
+Each supervised example is constructed from a rolling
+intraday chart window. The underlying market data are fifteen-
+
+TABLE I
+Data lineage and row counts.
+
+Object
+
+Rows/files
+
+Raw one-minute MOEX Si data
+15-minute by-contract candles
+Clean continuous-front series
+Clean trading dates
+I60/R20 manifest
+I120/R20 Option B manifest
+Numeric benchmark features
+Package manifest
+
+775,621
+89,628
+29,926
+502
+19,249
+18,924
+17,303
+51 files
+
+Role
+Raw input; value/turnover unavailable
+Contract-level aggregation
+Chronological front-contract series
+Liquidity-filtered clean days
+Single-scale I60 samples
+Strict-finalist sample base
+Non-image benchmark features
+21 results, 8 models, 7 derived, 15 raw
+
+Raw Chart-Image Examples Across Chronological Splits
+
+Train: sample 0, SiH4, y0
+
+Validation: sample 13051, SiM5, y1
+
+Test: sample 15998, SiU5, y1
+
+Fig. 3. Raw chart-image examples from chronological split previews: train sample 0 (SiH4, y0), validation sample 13051 (SiM5, y1), and test sample 15998
+(SiU5, y1). These examples illustrate the CNN input representation and motivate caution about rolling-window overlap and label instability.
+
+TABLE II
+Continuous-front roll schedule used for the chronological Si futures
+series.
+Roll/start date
+
+Previous front
+
+New front
+
+Note/source
+
+2024-01-03
+
+–
+
+SiH4
+
+2024-03-21
+
+SiH4
+
+SiM4
+
+2024-06-20
+
+SiM4
+
+SiU4
+
+2024-09-19
+
+SiU4
+
+SiZ4
+
+2024-12-19
+
+SiZ4
+
+SiH5
+
+2025-03-20
+
+SiH5
+
+SiM5
+
+2025-06-19
+
+SiM5
+
+SiU5
+
+2025-09-17
+
+SiU5
+
+SiZ5
+
+Initial front in supplied continuousfront schedule
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+Scheduled roll in continuous-front sequence
+
+minute OHLC candles from the clean continuous-front series. A
+chart image encodes the recent price path as a fixed-size visual
+representation suitable for a CNN. This follows the broad logic
+of time-series-to-image learning, where temporal relationships
+are represented visually so that convolutional filters can learn
+local and higher-order patterns [14], [36].
+For a given anchor time 𝑡, let 𝐶𝑡 denote the close price at
+the anchor. The forward return over horizon ℎ is defined as:
+𝑟 𝑡 ,ℎ =
+
+𝐶𝑡+ℎ
+− 1.
+𝐶𝑡
+
+(1)
+
+The binary directional label is:
+𝑦 𝑡 = 1{𝑟 𝑡 ,ℎ > 0},
+
+(2)
+
+where 𝑦 𝑡 = 1 denotes a positive forward return and 𝑦 𝑡 = 0
+denotes a non-positive forward return. In the main reported
+experiments, R20 denotes a 20-bar forward label. With fifteenminute bars, this corresponds to approximately five trading
+hours ahead, subject to the trading calendar and available
+intraday observations.
+The initial implementation used a single 20-bar image design,
+which corresponds to roughly five hours of past information
+when bars are sampled at fifteen-minute frequency. A diagnostic
+review of the initial experiment indicated that the design should
+be revised toward a more Re-Imag-aligned multi-scale setting.
+The revised package includes I60/R20 and I120/R20 manifests.
+The I60/R20 manifest contains 19,249 valid samples, while the
+I120/R20 Option B manifest contains 18,924 valid samples.
+These larger input windows provide more historical evidence
+to the model and better reflect the multi-scale logic of the
+benchmark paper.
+The rolling-window construction creates strong sample
+overlap: adjacent images differ by only one bar. The rawimage batches illustrate this issue directly. In the test raw
+sequence from SiU5 on 2025-09-05, adjacent chart images
+remain visually similar while the future-direction label switches
+from 𝑦 = 1 through sample 16012 to 𝑦 = 0 from sample 16013
+onward. Similar label instability appears in the training and
+validation raw-image batches. This does not invalidate the
+experiment, but it requires chronological splitting and cautious
+interpretation of the apparent sample size.
+
+TABLE III
+Image and selected-case manifest summary.
+Manifest
+
+Rows
+
+Sample IDs
+
+Contracts
+
+Time span
+
+Pos. rate
+
+Acc.
+
+Train raw preview
+Validation raw preview
+Test raw preview
+Selected Grad-CAM export
+
+100
+100
+150
+54
+
+0-103
+13051-13160
+15998-16161
+16301-18721
+
+SiH4:100
+SiM5:100
+SiU5:150
+SiU5:1, SiZ5:53
+
+2024-01-08 to 2024-01-10
+2025-05-22 to 2025-05-26
+2025-09-05 to 2025-09-10
+2025-09-16 to 2025-12-11
+
+0.640
+0.480
+0.827
+0.537
+
+–
+–
+–
+0.852
+
+Note: Selected Grad-CAM export accuracy is dashboard/export recomputation only; the formal Option B grid result of 0.833 is canonical.
+TABLE IV
+Model configurations and manuscript roles.
+Model/source
+
+Input
+
+Features
+
+Family
+
+Params
+
+Role
+
+Old 20-bar StockCNN
+single_I60_ma0_vol0
+single_I120_ma0_vol0
+multi_gated_20_60_120_ma0_vol0
+multi_gated_20_60_120_ma1_vol1
+HOG_I120_ma0_vol0
+HAAR_I120_ma0_vol0
+
+I20/R20
+I60/R20
+I120/R20
+20/60/120
+20/60/120
+I120/R20
+I120/R20
+
+Chart image
+OHLC
+OHLC
+OHLC
+MA+vol
+HOG
+HAAR-like
+
+single
+single
+single
+multi-gated
+multi-gated
+classical
+classical
+
+not audited
+~397k
+~988k
+~2.83M
+~2.83M
+n/a
+n/a
+
+Old baseline
+Best full-sample/broad selective
+Strict finalist
+Best multi-scale selected
+Rich variant
+Visual comparator
+Weaker comparator
+
+The revised experiment includes several model families.
+The
+best full-sample model is single_I60_ma0_vol0,
+The central methodological reference is Jiang, Kelly and
+an
+I60
+OHLC-only CNN. It has approximately 397,000
+Xiu’s “(Re-)Imag(in)ing Price Trends” [1]. Their design transparameter
+entries and achieves the strongest full-coverage
+forms daily stock market histories into chart images and trains
+result
+in
+the
+revised experiment. The strict selective finalist is
+CNNs to forecast return direction. Their empirical setting uses
+single_I120_ma0_vol0,
+an I120 OHLC-only CNN with
+stock-level daily OHLC/volume information, visual horizons
+approximately
+988,000
+parameter
+entries. The multi-scale gated
+such as 5, 20 and 60 days, and portfolio-style evaluation. This
+models
+combine
+20-,
+60and
+120-bar
+inputs through separate
+thesis adapts the same conceptual pipeline to intraday futures
+branches
+and
+a
+gating
+or
+fusion
+mechanism,
+with approximately
+decision support.
+2.83
+million
+parameter
+entries.
+The
+best
+multi-scale
+gated seThe alignment is explicit but not mechanical. The present
+lective
+model
+is
+multi_gated_20_60_120_ma0_vol0.
+study uses MOEX Si futures rather than U.S. equities; fifteenThe use of I60 and I120 windows addresses the limitation of
+minute bars rather than daily bars; I60, I120 and multi-scale
+the
+original single 20-bar setup. I60 denotes 60 fifteen-minute
+intraday windows rather than 5/20/60-day equity horizons;
+input
+bars, I120 denotes 120 fifteen-minute input bars, and
+and a selective decision-support dashboard rather than a pure
+portfolio construction endpoint. This difference defines the the 20/60/120 multi-scale design uses three simultaneous input
+contribution. The thesis does not claim to invent chart-image windows. These configurations give the model access to longer
+financial learning. Instead, it evaluates whether the Re-Imag intraday context while preserving an intraday decision horizon.
+idea can be adapted into an intraday, selective, explainable and Table IV reports the input design, feature setting, model family,
+approximate parameter entries and manuscript role.
+human-in-the-loop futures artifact.
+The comparison also motivates the inclusion of classical
+visual baselines. Re-Imag discusses computer-vision-style rep- G. Baselines: Numeric Logistic, Momentum, HOG and HAAR
+resentations such as HOG and HAAR as alternatives or comA model result is only meaningful when compared with
+parators to CNN learning. In this project, HOG and HAAR-like reasonable baselines. The project therefore includes non-image
+feature baselines are used as classical visual reference points. and classical visual comparators.
+They help answer whether the CNN’s selective advantage is
+The numeric benchmark feature table contains 17,303
+merely a consequence of any visual representation or whether rows and includes interpretable variables such as five-hour
+the learned CNN probability scores provide additional value. momentum, fifteen-hour momentum, recent range, close relative
+to moving average, volume ratio, last-bar body and last-bar
+F. CNN Models and Multi-Scale Inputs
+range. These features support a logistic benchmark and a simple
+Let 𝑋𝑡 denote the chart image or set of chart images momentum-sign benchmark. In the final comparison table, the
+associated with anchor time 𝑡. The CNN outputs an estimated numeric logistic benchmark achieves 0.456 accuracy, 0.496
+probability:
+balanced accuracy and 0.523 ROC-AUC at full coverage, while
+𝑝 𝑡 = 𝑃 𝜃 (𝑦 𝑡 = 1 | 𝑋𝑡 ),
+(3) the simple momentum sign baseline achieves 0.522 accuracy
+and 0.518 balanced accuracy at full coverage.
+where 𝜃 denotes the learned model parameters. A non-selective
+The HOG baseline provides a stronger classical visual
+point prediction can be defined as:
+comparison. In the selective tail setting for I120, the HOG
+𝑦ˆ 𝑡 = 1{𝑝 𝑡 ≥ 0.5}.
+(4) baseline reaches 0.704 accuracy, 0.754 balanced accuracy and
+E. Re-Imag-Aligned Research Design
+
+CNN and Multi-Scale Gated Model Architecture
+Single-scale branch
+I60/I120
+image
+
+Pooling +
+dropout
+
+Conv
+blocks
+
+p(up)
+
+Classifier
+
+Checkpoint audit
+I60: ∼397k
+I120: ∼988k
+20/60/120: ∼2.83M
+
+Multi-scale gated branch
+I20 branch
+I60 branch
+
+Gating /
+fusion
+
+Classifier
+
+p(up)
+
+I120 branch
+Fig. 4. Single-scale and multi-scale gated CNN model architecture used in the revised experiment package.
+
+0.455 MCC at 2.0% coverage. The HAAR-like features are
+weaker: their best reported row reaches 0.574 accuracy, 0.582
+balanced accuracy and 0.155 MCC at 5.1% coverage. These
+baselines are important because they show that visual structure
+has some predictive value even outside the CNN, while the strict
+CNN finalist remains stronger under the selected evaluation
+rule.
+H. Selective Probability-Tail Decision Rule
+The central methodological shift from the initial experiment
+to the revised experiment is the move from always-on prediction
+to selective decision support. Instead of forcing every window
+into a trading signal, the system retains only the most confident
+probability-tail cases.
+Let 𝑝 𝑡 be the CNN probability of an upward move. To
+avoid ambiguity between one-sided tail mass and total retained
+coverage, define the selected set for intended total coverage 𝑐
+as:
+𝑆 𝑐 = {𝑡 : 𝑝 𝑡 ≤ 𝑄 𝑐/2 ( 𝑝) ∨ 𝑝 𝑡 ≥ 𝑄 1−𝑐/2 ( 𝑝)},
+(5)
+where 𝑄 𝛼 ( 𝑝) is the empirical 𝛼-quantile of prediction probabilities on the evaluated set and 𝑁 is the eligible number of
+test rows for the relevant model or grid. The realized coverage
+is:
+|𝑆 𝑐 |
+Coverage(𝑐) =
+.
+(6)
+𝑁
+This rule is symmetric: it keeps both low-probability
+predicted-down cases and high-probability predicted-up cases.
+Thus, a reported 2.0% coverage rule corresponds to approximately 1.0% of observations retained from each probability
+tail, subject to rounding and ties. The selected rows are then
+evaluated separately from the full test set. This is appropriate
+for a decision-support system because the purpose is not to
+advise on every window. The purpose is to surface a small
+
+number of high-confidence cases and abstain from ambiguous
+ones.
+The strongest canonical result comes from the Option B
+strict finalist single_I120_ma0_vol0: 0.833 accuracy at
+2.0% coverage, corresponding to 54 selected rows. Because
+this is a selective result, its interpretation depends on the
+retained coverage and selected row count. The broader selective
+baseline single_I60_ma0_vol0 reaches approximately
+0.693 accuracy and 0.387 MCC at about 10.1% coverage.
+These results support the claim that the system is useful as a
+selective filter rather than a universal predictor.
+I. Grad-CAM and XAI Diagnostics
+The XAI component uses Grad-CAM-style visual explanations to inspect where the CNN places discriminative emphasis
+in chart images [5]. Grad-CAM produces a class-discriminative
+heatmap over the image, which can be rendered as a heatmaponly image, a full overlay, or a masked overlay. The thesis
+uses these views as an audit mechanism rather than as proof
+of causal reasoning.
+The XAI analysis has two levels. The first level is quantitative allocation, where heat is compared against foreground/background or chart/volume masks. Under strict
+foreground-mask definitions, the selected cases can appear
+background-focused. For example, the strict-best Option B
+Grad-CAM summary reports 54 selected rows with average
+dilated foreground heat of 0.142 and average background heat
+of 0.858. This strict-mask result should be reported as a caution
+signal.
+The second level is visual case audit. Later image batches
+include heatmap-only, full-overlay, masked-overlay and selected
+raw images for representative cases. These images refine the
+interpretation. The selected examples are not purely backgroundfocused: the activations are usually anchored around visible
+chart structures, trend segments, turning areas and late-window
+
+breaks. However, the highlighted regions are broad and often
+extend beyond the exact candle trace.
+The final XAI interpretation is therefore:
+Visual inspection of Grad-CAM outputs suggests that
+the CNN often attends to chart foreground structures
+and major trend segments, but the highlighted regions
+are typically broad and extend beyond the immediate candle path. Accordingly, Grad-CAM is most
+useful here as a diagnostic and decision-audit tool
+rather than as definitive proof of precise candle-level
+reasoning.
+This wording is intentionally cautious and is consistent with
+the broader XAI literature, which warns that saliency maps
+can be visually appealing but incomplete measures of model
+reasoning [6], [7], [20].
+
+artifact for intraday MOEX Si futures analysis. The artifact
+is not a fully automated trading system. It is a research
+prototype and analyst-facing workflow that connects model
+probabilities, selective coverage, raw chart evidence, GradCAM visualizations and cautionary governance rules in one
+inspection environment. This section presents the proposed
+solution to the applied trading-analytics problem: transforming
+noisy intraday model outputs into an auditable decision-support
+process.
+The solution is implemented as a pipeline and dashboard
+called Decision Support Studio. The dashboard operationalizes the proposed decision-support framework by connecting
+selected CNN probability-tail cases to raw chart images, GradCAM heatmaps, masked overlays, confidence buckets and
+coverage-performance analytics. Its purpose is not to automate
+trades, but to provide an auditable queue for analyst inspection.
+
+J. Evaluation Metrics
+Because the class balance and selected-case coverage vary
+across experiments, raw accuracy alone is insufficient. The
+evaluation therefore reports accuracy, balanced accuracy, precision, recall, F1-score, Matthews correlation coefficient (MCC),
+ROC-AUC where available, coverage and row count.
+Balanced accuracy is used because it averages sensitivity
+across classes. F1-score summarizes precision and recall. MCC
+is especially useful in binary classification because it uses
+all four confusion-matrix cells and remains informative when
+classes or predictions are imbalanced. ROC-AUC is reported
+for full-sample probabilistic models when available, but it is not
+always meaningful for selected tail subsets if only thresholded
+selected rows are evaluated.
+Accordingly, each selective result is reported with retained
+coverage and selected row count. In particular, the strictfinalist result is reported as “0.833 accuracy at 2.0% coverage,
+corresponding to 54 selected rows.” This prevents the reader
+from confusing a small, high-confidence subset with the full
+test distribution.
+In summary, the methodology can be summarized as
+follows. First, raw one-minute MOEX Si futures data are
+aggregated to fifteen-minute candles and converted into a
+clean continuous-front series. Second, rolling chart images
+are generated and labeled by future return direction. Third,
+several CNN and baseline models are trained and evaluated
+under chronological splitting. Fourth, instead of deploying
+an always-on classifier, the system applies a probability-tail
+selection rule to retain only high-confidence cases. Fifth, GradCAM and raw/overlay/masked images are used to audit selected
+decisions. Finally, the selected cases are integrated into the
+Decision Support Studio dashboard for analyst inspection.
+This methodology directly supports the project-based thesis
+objective: to design and evaluate a selective, explainable and
+human-in-the-loop decision-support artifact for intraday futures
+trading analysis.
+IV. Solution Architecture and Decision-Support Artifact
+This section describes the proposed practical solution: an
+explainable, selective and human-in-the-loop decision-support
+
+A. System Architecture
+The system architecture follows the complete evidence chain
+from raw market observations to analyst-facing decisions. The
+architecture consists of seven layers:
+1) raw MOEX Si futures one-minute data;
+2) fifteen-minute by-contract OHLC aggregation;
+3) clean continuous-front construction;
+4) rolling chart-image generation;
+5) CNN and baseline model scoring;
+6) selective probability-tail filtering;
+7) Grad-CAM visual audit and dashboard presentation.
+This architecture is shown conceptually in Figure 1. The
+system starts from 775,621 raw one-minute rows and produces
+a clean continuous-front fifteen-minute series with 29,926 rows
+over 502 trading dates. From this series, rolling chart-image
+samples are constructed. Model predictions are generated for
+eligible samples, but only high-confidence probability-tail cases
+are surfaced for analyst review. The selected cases are linked
+to raw images, heatmaps, full overlays, masked overlays, labels,
+predicted probabilities, correctness indicators and forward
+returns.
+The architecture reflects a design-science view of the project.
+The artifact is not only the CNN model; it is the integrated
+decision process that includes data engineering, model scoring,
+abstention, explainability and user-facing inspection. This
+is consistent with design-science research principles, which
+evaluate artifacts by their ability to solve an applied problem
+in a relevant environment [22]–[24].
+B. Data-to-Decision Pipeline
+The data-to-decision pipeline converts raw market data into
+a structured analyst queue. Its stages are as follows.
+First, one-minute futures records are aggregated to fifteenminute OHLC candles for each contract. Second, a continuousfront series is constructed using the front-contract roll sequence:
+SiH4 → SiM4 → SiU4 → SiZ4
+→ SiH5 → SiM5 → SiU5 → SiZ5.
+
+Third, rolling windows are converted into candlestick or chart
+images. Fourth, each image is scored by the CNN and, where
+relevant, by baseline models. Fifth, the selective tail rule keeps
+only cases whose predicted probability falls into the most
+extreme low or high probability regions. Sixth, Grad-CAM
+visualizations are generated for selected cases. Seventh, the
+selected cases and their visual evidence are loaded into the
+dashboard.
+The pipeline deliberately separates prediction from recommendation. A probability score is not automatically a
+recommendation. A case becomes decision-support material
+only when it passes the selective rule and is visible in the
+dashboard with sufficient evidence for analyst inspection. This
+separation is important because the full-sample model edge is
+modest, whereas the selective tail cases are stronger but based
+on a small selected sample. The pipeline therefore reduces the
+risk of presenting ordinary ambiguous windows as actionable
+signals.
+
+C. Model and Selective-Rule Integration
+The dashboard integrates model outputs at two levels. At
+the first level, it shows aggregate model evidence: full-sample
+performance, selective frontier performance and strict-finalist
+performance. At the second level, it shows case-level evidence:
+probability, predicted direction, true label when available,
+forward return, signal bucket, confidence bucket and XAI
+quality bucket.
+The core integration logic is the selective probability-tail
+rule. For a predicted probability 𝑝 𝑡 , extreme low values indicate
+high-confidence predicted-down cases and extreme high values
+indicate high-confidence predicted-up cases. The system retains
+both sides symmetrically. This is important because a decisionsupport queue supports both long/up and short/down analytical
+hypotheses. In the Grad-CAM selected export, the 54 selected
+rows are balanced by predicted side: 27 predicted-up and 27
+predicted-down cases.
+Consistent with selective prediction and related reject-option
+or abstention logic [61]–[63], the strongest canonical selected result comes from single_I120_ma0_vol0, which reaches
+0.833 accuracy at 2.0% coverage, corresponding to 54 selected
+rows. This result is displayed as the strict finalist rather than
+as a general test-set accuracy. The dashboard also includes
+broader selective evidence, such as the I60 rule around 5.1% or
+10.1% coverage, because an analyst may prefer a larger review
+queue with lower precision depending on operational needs.
+The integration design therefore supports three operating
+modes:
+1) Full-sample monitoring: use aggregate metrics to understand the model’s general edge.
+2) Selective triage: use probability-tail filtering to surface
+high-confidence cases.
+3) Case audit: inspect the raw chart and XAI views before
+treating a case as decision support.
+
+D. Grad-CAM Image Audit Workflow
+The Grad-CAM audit workflow links each selected case to
+four visual views:
+1) raw chart image;
+2) heatmap-only Grad-CAM image;
+3) full overlay image;
+4) masked overlay image.
+The raw image shows the actual CNN input. The heatmaponly image shows the spatial distribution of class-discriminative
+activation. The full overlay shows the heatmap superimposed
+on the raw chart, making it possible to see whether activation
+is near visible chart structures. The masked overlay retains
+the visually emphasized chart regions and suppresses the rest,
+helping the analyst identify the chart geometry associated with
+the selected case.
+This workflow is necessary because the strict quantitative
+mask and visual inspection do not always give the same
+impression. Under strict foreground/background masks, selected
+cases can appear background-heavy. However, when raw,
+overlay and masked views are inspected together, representative
+selected cases are better described as chart-anchored but
+spatially diffuse. The highlighted regions often align with major
+trend segments, local turning regions or late-window breaks,
+but they are not sharply restricted to individual candle pixels.
+The case-level audit supports three interpretation rules:
+1) if activation is chart-anchored and the probability is
+extreme, the case may be suitable for analyst review;
+2) if activation is diffuse or background-heavy under the
+strict mask, the case should be treated cautiously;
+3) Grad-CAM is never interpreted as proof of causal market
+reasoning.
+This is consistent with the XAI literature, which treats
+saliency methods as post-hoc diagnostic tools rather than
+definitive explanations [5]–[7], [20].
+E. Decision Support Studio Dashboard
+The final dashboard is a static single-page decision-support
+interface named Decision Support Studio. It is built around
+an inspection workflow rather than around automatic trade
+execution. The dashboard master table contains 404 curated
+rows, including 54 selected prediction rows linked to GradCAM/dashboard evidence. The remaining curated rows support
+browsing, filtering and visual context rather than serving as
+the strict quantitative selected set. The interface supports raw,
+overlay, masked and heatmap views for case-level inspection.
+The dashboard contains several functional components,
+summarized in Table V. These components include KPI cards,
+a signal queue, a case-level decision studio, image-view toggles,
+filters, analytics panels and governance notes. The KPI cards
+communicate the evidence hierarchy: the best full-sample
+branch, the practical selective rule, the strict finalist and the
+current filtered queue. The signal queue ranks selected cases
+for analyst inspection. The decision studio displays a selected
+case with its metadata and images. The analytics panels provide
+
+TABLE V
+Decision Support Studio functions and purposes.
+Component
+
+Decision-support function
+
+KPI cards
+Signal queue
+Decision studio
+Raw/overlay/masked/heat views
+Filters
+Benchmark ladder
+Coverage frontier
+XAI allocation panel
+Governance notes
+
+Show full-sample, selective, strict-finalist and queue status
+Rank surfaced cases for analyst inspection
+Inspect one case with metadata and images
+Compare chart and XAI evidence
+Contract, split, signal, confidence, XAI group, date and search
+Compare model families
+Show performance/coverage trade-off
+Keep foreground/background caution visible
+Prevent blind automation
+
+Note: Dashboard/export recomputation is an inspection note only; the formal grid result of 0.833 remains the canonical quantitative result.
+
+Decision Support Studio: Selective Human-in-the-Loop Dashboard
+Decision studio
+
+Analytics + governance
+
+Selected case metadata
+
+Coverage frontier
+
+Raw chart | Heatmap
+
+Benchmark ladder
+
+Overlay | Masked view
+
+XAI allocation
+
+Probability and return
+
+Caution rules
+
+KPI / Evidence hierarchy
+Full-sample branch
+Selective rule
+Strict finalist
+Coverage & rows
+
+Signal queue
+Ranked surfaced cases
+Signal + confidence
+Contract/date filters
+XAI quality flags
+
+Purpose: auditable analyst inspection, not blind automation.
+Fig. 5. Decision Support Studio dashboard schematic. The schematic replaces the full browser screenshot in the main text and emphasizes the four operational
+regions: KPI/evidence hierarchy, signal queue, case-level decision studio, and analytics/governance panels.
+
+benchmark comparison, coverage frontier, XAI allocation and
+queue composition.
+The dashboard filters support operational exploration by
+contract, split, signal, confidence, XAI quality, date and search
+term. This is important because a decision-support tool should
+not hide selection. It should allow the analyst to see which
+contracts, dates and signal types dominate the surfaced cases.
+For example, the selected Grad-CAM export is concentrated
+in SiZ5, which is a limitation that the analyst can notice.
+The dashboard’s purpose is not to convince the user that every surfaced case is correct. Its purpose is to make the evidence
+and caveats visible. A surfaced case is therefore presented with
+probability, label, forward return, image evidence and XAI
+diagnostics rather than only as a buy/sell signal.
+F. Analyst Workflow and Operating Procedure
+The proposed operating procedure has six steps.
+
+1) Review system context. The analyst first observes the
+global KPI cards and confirms whether the model branch,
+coverage level and evidence hierarchy are appropriate for
+the current analysis session.
+2) Filter the queue. The analyst filters by contract, signal
+direction, confidence, XAI group, date or search term.
+3) Inspect probability and coverage. The analyst checks
+whether the case belongs to a strict high-confidence
+subset or a broader selective subset.
+4) Inspect chart evidence. The analyst compares the raw
+chart with the heatmap-only, full-overlay and maskedoverlay views.
+5) Apply caution rules. If the case is diffuse, backgroundheavy by strict mask or inconsistent with visible chart
+structure, the analyst treats it as lower confidence.
+6) Record decision-support interpretation. The case
+can be documented as supportive evidence, ambiguous
+
+evidence or rejected evidence, but it should not be
+executed automatically as a trade.
+This workflow converts a machine-learning score into a
+governed analytical process. It also aligns with the thesis’s
+practical management goal: to support decision quality under
+uncertainty by providing a structured, auditable and cautious
+signal-review procedure.
+G. Governance, Caution Rules and Human-in-the-Loop Use
+
+production trading deployment. Production deployment would
+require transaction-cost backtesting, monitoring, access control,
+live data integration, risk limits, and further validation across
+market regimes.
+V. Results, Discussion, Limitations, and Conclusion
+This chapter evaluates whether the proposed system solves
+the project problem formulated in the previous chapters:
+transforming noisy intraday futures prediction into a selective,
+auditable and human-in-the-loop decision-support workflow.
+The evidence is presented in a deliberately conservative order.
+First, the old single-scale baseline is reported to show why
+the original always-on framing was insufficient. Second, the
+revised full-sample models are evaluated. Third, the selective
+probability-tail results are reported with explicit coverage and
+row counts. Fourth, the CNN results are compared with classical
+numeric and visual baselines. Fifth, Grad-CAM and dashboard
+evidence are interpreted as decision-audit tools rather than as
+proof of automated trading readiness.
+
+The system includes explicit governance rules because the
+model is probabilistic, selective and post-hoc explainable. The
+main caution rules are:
+1) do not use the model as a blind automated trading system;
+2) do not interpret full-sample accuracy as operational
+decision accuracy;
+3) always report selected-case coverage and row count;
+4) treat Grad-CAM as diagnostic evidence, not causal proof;
+5) treat background-heavy or diffuse cases as requiring
+additional review;
+6) do not claim transaction-cost-adjusted profitability withA. Old Single-Scale Baseline and Motivation
+out a separate economic backtest;
+The initial project iteration used a single 20-bar chart-image
+7) monitor contract concentration and regime dependence.
+model.
+That version was useful for proving that the data
+These rules are displayed conceptually in the dashboard
+pipeline,
+image construction, CNN training, Grad-CAM export
+through operational stance and evidence-hierarchy panels. They
+and
+dashboard
+prototype could be built. However, it did not
+are also reflected in the final limitations table. The governance
+provide
+a
+strong
+enough empirical result for a final thesis or
+design is part of the artifact’s practical significance: it prevents
+journal-style
+manuscript.
+the model output from being misused as an unqualified trading
+The old 20-bar-only model achieved approximately 0.552
+command.
+test
+accuracy and 0.557 ROC-AUC. Because the corresponding
+Human-in-the-loop use is central. The analyst remains
+majority-baseline
+denominator is not available in the supplied
+responsible for interpreting the surfaced case, reviewing visual
+materials,
+the
+result
+is interpreted conservatively as a weak
+evidence and deciding whether the case should influence a
+initial
+baseline
+rather
+than as evidence of a robust forecasting
+trading or monitoring decision. The system supports the analyst
+edge.
+These
+results
+motivate
+the revised research design. A
+by reducing the number of cases, organizing evidence and
+diagnostic
+review
+of
+the
+initial
+experiment indicated that
+exposing uncertainty, consistent with human-AI interaction
+the
+earlier
+design
+used
+too
+narrow
+an input scale compared
+guidance for maintaining user control and making system state
+with
+the
+multi-horizon
+logic
+of
+Jiang,
+Kelly and Xiu’s “(Revisible [64].
+)Imag(in)ing Price Trends” [1]. The revision therefore expanded
+H. Effectiveness Logic of the Artifact
+the experiment toward longer intraday input windows, selective
+The effectiveness of the solution is evaluated by combining tail-rule evaluation, classical visual baselines and more explicit
+quantitative model evidence with artifact-level usefulness. Grad-CAM diagnostics.
+Quantitatively, the strongest selected model reaches 0.833
+The key lesson from the old baseline is methodological: a
+accuracy at 2.0% coverage, corresponding to 54 selected rows. model that predicts every rolling intraday window is unlikely
+A broader I60 selective rule reaches approximately 0.693 to be useful when most windows are noisy and ambiguous.
+accuracy at about 10.1% coverage. The HOG comparator The revised system therefore changes the main question from
+reaches 0.704 accuracy and 0.455 MCC at 2.0% coverage, “Can the classifier predict every window?” to “Can the system
+while HAAR-like features are weaker. These results show that identify a small subset of high-confidence windows that are
+selective visual decision support has more practical value than suitable for analyst inspection?”
+the old always-on 20-bar classifier.
+At the artifact level, the dashboard satisfies the project B. Full-Sample Model Results
+Table VI reports full-sample model and benchmark
+requirement by providing a concrete solution with procedures
+and governance rules. It connects data provenance, model performance. The strongest full-coverage CNN is
+scoring, selective filtering, visual audit and analyst action. single_I60_ma0_vol0, which uses an I60 OHLCIt therefore transforms a technical ML experiment into a only chart input. It achieves 0.587 accuracy, 0.559 balanced
+accuracy, 0.126 MCC and 0.580 ROC-AUC. This is an
+management-relevant decision-support system.
+The artifact is evaluated as a prototype. It is suitable for improvement over the old 20-bar baseline and over the numeric
+thesis defense and research demonstration, but not yet for logistic benchmark, but it remains a modest full-sample edge.
+
+TABLE VI
+Full-sample model and benchmark performance.
+Model/source
+
+Input
+
+Eligible N
+
+Cov.
+
+Acc.
+
+BAcc.
+
+F1
+
+MCC
+
+AUC
+
+numeric_logit_benchmark
+simple_momentum_sign
+single_I60_ma0_vol0
+multi_20_60_ma1_vol1
+
+Benchmark
+Benchmark
+I60
+20/60
+
+not available
+not available
+2722
+2722
+
+1.000
+1.000
+1.000
+1.000
+
+0.456
+0.522
+0.587
+0.475
+
+0.496
+0.518
+0.559
+0.520
+
+0.537
+0.467
+0.437
+0.565
+
+-0.010
+0.036
+0.126
+0.049
+
+0.523
+–
+0.580
+0.549
+
+Note: Eligible N is reported when directly traceable from full-sample or exact coverage/result outputs; otherwise it is marked as not available in the supplied
+materials.
+
+Full-Sample Benchmark Ladder
+
+0.65
+Balanced accuracy
+ROC-AUC
+
+0.60
+
+0.580
+0.559
+
+0.549
+
+Metric value
+
+0.55
+0.523
+
+0.50
+
+0.520
+
+0.518
+
+0.496
+
+0.45
+
+0.40
+
+0.35
+
+Numeric
+logistic
+
+Momentum
+sign
+
+Single I60
+OHLC
+
+Multi 20/60
+rich
+
+Fig. 6. Full-sample benchmark ladder. The best full-sample CNN improves over simple baselines but remains a modest forecasting edge, motivating selective
+abstention.
+
+The numeric logistic benchmark performs weakly, with 0.456 where market microstructure noise and overlapping labels
+accuracy, 0.496 balanced accuracy and 0.523 ROC-AUC. The weaken the signal [2], [11], [13]. Therefore, the full-sample
+simple momentum-sign benchmark performs closer to random, result should be treated as evidence of a weak but non-zero
+with 0.522 accuracy and 0.518 balanced accuracy. The multi- signal, not as the primary thesis contribution.
+scale full-sample model multi_20_60_ma1_vol1 reaches
+0.475 accuracy, 0.520 balanced accuracy, 0.049 MCC and C. Selective Tail-Rule Results
+The strongest evidence appears when the model is eval0.549 ROC-AUC. This suggests that the full-sample multiscale variant is not automatically superior, even though multi- uated as a selective decision-support filter rather than as
+scale information is conceptually aligned with the Re-Imag an always-on predictor. Table VII reports the best rows
+from the tail-grid experiments. The original tail-grid result
+benchmark.
+for single_I60_ma0_vol0 reaches approximately 0.693
+The full-sample findings support a cautious interpretation. accuracy, 0.694 balanced accuracy and 0.387 MCC at about
+The CNN does learn some directional information from chart 10.1% coverage. At 5.1% coverage, the same I60 model reaches
+images, especially in the I60 OHLC-only configuration, but 0.688 accuracy, 0.695 balanced accuracy and 0.384 MCC.
+the effect is not strong enough to justify an always-on trading These results are substantially stronger than the full-sample
+recommendation. This is consistent with the empirical difficulty result and show the value of abstaining from ambiguous
+of financial prediction, especially in short-horizon settings windows.
+
+TABLE VII
+Selective tail-rule results by grid family.
+Grid
+
+Model/source
+
+Eligible N
+
+Cov.
+
+Selected
+
+Acc.
+
+BAcc.
+
+F1
+
+MCC
+
+Original
+Original
+Original
+Original
+Original
+Option B
+Option B
+Option B
+Option B
+Option B
+Option B
+Option B
+Option B
+
+single_I60_ma0_vol0
+single_I60_ma0_vol0
+multi_20_60_ma1_vol1
+multi_20_60_ma1_vol1
+single_I60_ma0_vol0
+single_I120_ma0_vol0
+multi_gated_20_60_120_ma0_vol0
+multi_gated_20_60_120_ma1_vol1
+multi_gated_20_60_120_ma1_vol1
+single_I120_ma0_vol0
+single_I120_ma0_vol0
+multi_gated_20_60_120_ma1_vol1
+multi_gated_20_60_120_ma0_vol0
+
+2722
+2722
+2722
+2722
+2722
+2687
+2687
+2687
+2687
+2687
+2687
+2687
+2687
+
+0.101
+0.051
+0.051
+0.030
+0.201
+0.020
+0.020
+0.020
+0.031
+0.031
+0.051
+0.051
+0.031
+
+274
+138
+138
+82
+546
+54
+54
+54
+82
+82
+136
+136
+82
+
+0.693
+0.688
+0.688
+0.671
+0.667
+0.833
+0.796
+0.778
+0.780
+0.780
+0.743
+0.728
+0.720
+
+0.694
+0.695
+0.690
+0.671
+0.668
+0.834
+0.807
+0.792
+0.787
+0.783
+0.744
+0.728
+0.723
+
+0.698
+0.715
+0.703
+0.675
+0.651
+0.830
+0.776
+0.750
+0.763
+0.769
+0.733
+0.726
+0.701
+
+0.387
+0.384
+0.379
+0.342
+0.335
+0.667
+0.603
+0.570
+0.567
+0.564
+0.487
+0.456
+0.442
+
+Note: Eligible N is traced from exact coverage and selected-row fields in the corresponding result CSV; coverage is rounded in the manuscript. Rounding, ties,
+and grid-specific filtering can make realized coverage differ slightly from the intended nominal coverage.
+
+Selective Coverage Frontier
+Strict finalist
+2.0% / 54 rows
+
+0.85
+
+Balanced accuracy
+
+0.80
+
+0.75
+
+0.70
+
+0.65
+
+0.60
+
+0.55
+2.5
+
+5.0
+
+7.5
+
+10.0
+
+12.5
+
+15.0
+
+17.5
+
+20.0
+
+Coverage (%)
+single_I60_ma0_vol0 original
+multi_20_60_ma1_vol1 original
+multi_gated_20_60_120_ma0_vol0 Option B
+
+multi_gated_20_60_120_ma1_vol1 Option B
+single_I120_ma0_vol0 Option B
+
+Fig. 7. Selective coverage frontier showing the trade-off between retained coverage and balanced accuracy. The strict finalist is highlighted at 2.0% coverage /
+54 selected rows.
+
+The selective results are interpreted with coverage. A manuscript include coverage and row count.
+selective model does not claim that every intraday window
+The broader selective result is important for practical use
+is predictable. It claims that a small subset of probabilitytail cases can be surfaced for inspection. This distinction is because it covers more cases than the strict finalist. Around
+essential for both academic validity and practical decision- 10.1% coverage may be more operationally useful than 2.0%
+support design. Reporting selective accuracy without coverage coverage if the analyst wants a larger review queue. However,
+would be misleading; therefore all selective results in this the strict-finalist result provides the cleanest high-confidence
+evidence and is therefore treated as the main quantitative
+
+TABLE VIII
+Option B strict-finalist and selected comparator results.
+Role
+
+Model/source
+
+Eligible N
+
+Cov.
+
+Selected
+
+Acc.
+
+BAcc.
+
+Prec.
+
+Rec.
+
+F1
+
+MCC
+
+Wilson
+CI
+
+95%
+
+strict_best_score
+best_multiscale
+best_rich_fullimage
+
+single_I120_ma0_vol0
+multi_gated_20_60_120_ma0_vol0
+multi_gated_20_60_120_ma1_vol1
+
+2687
+2687
+2687
+
+0.020
+0.020
+0.020
+
+54
+54
+54
+
+0.833
+0.796
+0.778
+
+0.834
+0.807
+0.792
+
+0.815
+0.704
+0.667
+
+0.846
+0.864
+0.857
+
+0.830
+0.776
+0.750
+
+0.667
+0.603
+0.570
+
+[0.713, 0.910]
+not reported
+not reported
+
+Note: Wilson interval is reported for the canonical strict finalist only: 45 correct out of 54 selected rows. It does not adjust for rolling-window dependence.
+
+headline.
+
+0.9
+
+CNN, HOG and HAAR Selective Comparison
+Balanced accuracy
+MCC
+
+0.834
+
+D. Option B Strict Finalist
+
+0.8
+
+0.754
+
+Metric value
+
+The strongest canonical result is the Option B strict finalist
+0.7
+0.667
+single_I120_ma0_vol0. It achieves 0.833 accuracy at
+0.582
+0.6
+2.0% coverage, corresponding to 54 selected rows. The same
+row reports 0.834 balanced accuracy, 0.830 F1-score and 0.667
+0.5
+0.455
+MCC. This result is reported in Table VIII.
+0.4
+This is the main result of the revised experiment, but it
+0.3
+must not be overclaimed. It is strong precisely because it is
+selective. The system abstains from approximately 98% of
+0.2
+0.155
+eligible windows and surfaces only the most extreme predicted0.1
+up and predicted-down cases. The result therefore supports a
+0.0
+decision-support interpretation rather than a universal forecastCNN I120
+HOG I120
+HAAR-like
+strict
+tail
+tail
+ing interpretation.
+The I120 result also directly addresses the limitation of the
+original short input window. The longer 120-bar input gives the Fig. 8. Selective comparison of the strict CNN finalist with HOG and HAARstyle visual baselines. The CNN strict finalist is reported with 2.0% coverage
+model more intraday context, and the strict probability-tail rule / 54 selected rows.
+uses only the most confident probability regions. Therefore,
+the result is interpreted as a high-confidence selected-subset full-sample classification. A richer multi-scale model,
+multi_gated_20_60_120_ma1_vol1, achieves 0.778
+result:
+accuracy, 0.792 balanced accuracy, 0.750 F1-score and 0.570
+The strict-finalist single_I120_ma0_vol0
+MCC at the same 2.0% coverage.
+model achieves 0.833 accuracy at 2.0% coverage,
+The multi-scale results are useful even though they are not the
+corresponding to 54 selected rows.
+absolute best. They show that the revised experiment genuinely
+Reporting the result without coverage and row count would moved beyond a single fixed 20-bar design. The saved checkconceal the abstention design and selected-sample size. Because point audit confirms that the multi-gated 20/60/120 models
+the strict finalist is based on only 54 selected rows, the estimate contain approximately 2.83 million parameter entries, while
+is based on a small selected sample. A Wilson binomial interval the I60 and I120 single-scale models contain approximately
+for 45/54 gives an approximate 95% confidence interval of 397,000 and 988,000 entries respectively. This supports the
+[0.713, 0.910]. This interval is interpreted cautiously because methodological claim that the revised experiment explored
+rolling-window dependence can reduce the effective sample richer Re-Imag-aligned input designs rather than merely resize.
+reporting the old model.
+The strict finalist is selected from a grid of model and
+At the same time, the fact that the single I120 model
+coverage configurations. The reported Wilson interval describes outperforms the multi-gated models in the strict selected setting
+binomial uncertainty for the locked 45/54 selected result is informative. It suggests that more architectural complexity
+but does not correct for model/coverage selection, multiple does not automatically improve performance in this data regime.
+comparisons, or serial dependence among rolling windows. The strongest result comes from a longer OHLC-only input
+Therefore, the strict finalist is treated as exploratory selected- and a strict selective rule, not from the richest image setting.
+subset evidence that requires validation on additional regimes
+F. HOG, HAAR and Numeric Benchmark Comparison
+and contracts.
+The baseline results help position the CNN contribution. The
+E. Multi-Scale Gated Results
+HOG baseline is a meaningful classical visual comparator. At
+The best multi-scale gated selective model is 2.0% coverage, the HOG tail baseline reaches 0.704 accuracy,
+multi_gated_20_60_120_ma0_vol0.
+At
+2.0% 0.754 balanced accuracy and 0.455 MCC. This is stronger
+coverage and 54 selected rows, it achieves 0.796 accuracy, than the HAAR-like baseline and stronger than the full-sample
+0.807 balanced accuracy and 0.603 MCC. This is weaker numeric baselines, showing that visual structure in chart images
+than the strict I120 finalist but still much stronger than contains useful information even outside a CNN.
+
+TABLE IX
+Numeric, momentum, HOG, and HAAR baseline comparison.
+Baseline/source
+
+Mode
+
+Eligible N
+
+Cov.
+
+Selected
+
+Acc.
+
+BAcc.
+
+F1
+
+MCC
+
+AUC
+
+numeric_logit_benchmark
+simple_momentum_sign
+HOG_I120_ma0_vol0
+HAAR_I120_ma0_vol0
+
+full
+full
+tail
+tail
+
+not available
+not available
+2687
+2687
+
+1.000
+1.000
+0.020
+0.051
+
+–
+–
+54
+136
+
+0.456
+0.522
+0.704
+0.574
+
+0.496
+0.518
+0.754
+0.582
+
+0.537
+0.467
+0.619
+0.491
+
+-0.010
+0.036
+0.455
+0.155
+
+0.523
+–
+–
+–
+
+Note: The CNN strict finalist is reported in Table VIII; this table reports non-CNN and classical baseline comparators. Eligible N is marked as not available
+where it is not directly available in the supplied summary table.
+TABLE X
+Grad-CAM selected-case export summary.
+Item
+
+Value
+
+Selected Grad-CAM/dashboard export rows
+Direct recomputation correct rows
+Direct recomputation accuracy
+Canonical formal Option B grid correct rows
+Canonical formal Option B grid accuracy
+Predicted-up rows
+Predicted-down rows
+True-up rows
+True-down rows
+Contract concentration
+Dashboard/export source
+Canonical grid source
+Row-level discrepancy cause
+
+54
+46
+0.852
+45/54
+0.833
+27
+27
+29
+25
+SiU5:1, SiZ5:53
+test_gradcam_index.csv
+optionB_tail_grid_results.csv; optionB_finalists.csv
+not available in the supplied materials
+
+Note: Dashboard/export recomputation only; the formal grid result 0.833 is canonical.
+
+The HAAR-like feature baseline is weaker. Its best reported
+row reaches 0.574 accuracy, 0.582 balanced accuracy and 0.155
+MCC at 5.1% coverage. At 2.0% coverage, the HAAR-like
+baseline performs poorly. This suggests that not all classical
+visual descriptors are equally suitable for the present chartimage setting.
+The comparison supports two conclusions. First, the CNN
+strict finalist is not merely benefiting from arbitrary selection;
+it outperforms HOG and HAAR-like comparators under the
+strongest selected setting. Second, the HOG result prevents an
+exaggerated claim that only deep CNN features are meaningful.
+A careful conclusion is that both classical visual features and
+CNN probabilities can extract information from chart images,
+but the best selective CNN result is stronger in the supplied
+experiment package.
+G. Dashboard and Export Consistency Note
+The dashboard and Grad-CAM export subset contain
+54 selected prediction rows. Direct recomputation from
+test_gradcam_index.csv using 𝑝 up ≥ 0.5 gives 46
+correct predictions out of 54, or 0.852 accuracy. The selected
+set contains 27 predicted-up and 27 predicted-down cases, with
+29 true-up and 25 true-down labels. It is heavily concentrated
+in the SiZ5 contract: 53 of 54 selected Grad-CAM rows are
+SiZ5, and one row is SiU5.
+The 0.852 value is a direct recomputation
+from
+the
+dashboard/Grad-CAM
+export
+file
+test_gradcam_index.csv using 𝑝 up ≥ 0.50. The formal
+Option B grid in optionB_tail_grid_results.csv
+and optionB_finalists.csv reports 45 correct
+predictions out of 54, or 0.833 accuracy, and is used as the
+canonical quantitative result because it comes from the locked
+
+grid-evaluation output. The dashboard value is retained only as
+an export/recomputation consistency note. The exact row-level
+cause of the one-case discrepancy is not verifiable from the
+manuscript alone and should be checked against the source
+result files.
+This distinction is important for research integrity. The
+dashboard is an artifact for inspection, not the primary statistical
+table. The formal result table is therefore used for quantitative
+claims, while the dashboard subset is used to demonstrate
+case-level auditability.
+H. Grad-CAM and Case-Level Visual Audit
+The Grad-CAM results are interpreted in two stages. The
+first stage is the strict quantitative foreground/background
+mask analysis. For the strict-best Option B selected cases,
+the Grad-CAM summary reports 54 background-focused rows,
+with average dilated foreground heat of 0.142 and average
+background heat of 0.858. Under this strict mask definition,
+the model appears background-heavy. This is a useful warning
+and should be reported transparently.
+The second stage is visual inspection of the heatmap-only,
+masked-overlay, full-overlay and selected raw-image batches.
+These image batches refine the interpretation. The heatmap-only
+images show broad activation regions. The masked overlays
+show that much of the retained signal follows visible chart
+structures. The full overlays show that the heat is usually
+anchored near trend segments, local turning areas and latewindow breaks, but often spreads beyond the exact candle
+path. The selected raw images confirm the underlying chart
+structures.
+Three recurring case families appear in the visual audit.
+Group A contains samples 16301 and 16653–16657. These are
+
+Grad-CAM Four-Panel Case Audit
+
+SiZ5 2025-10-02 08:45
+p(up)=0.908, y=1, correct
+Raw
+
+Heat
+
+Overlay
+
+Masked
+
+SiZ5 2025-10-13 13:15
+p(up)=0.246, y=0, correct
+Raw
+
+Heat
+
+Overlay
+
+Masked
+
+Fig. 9. Grad-CAM four-panel case audit for selected 2.0%-coverage examples. Sample 16653 is SiZ5 on 2025-10-02 08:45, predicted up with probability
+0.908, true label up and correct. Sample 16958 is SiZ5 on 2025-10-13 13:15, predicted down because probability-up is 0.246, true label down and correct. The
+panels support visual audit only; they do not establish causal candle-level reasoning.
+
+1.0
+
+XAI Allocation Under Strict Mask Rule
+0.858
+
+Average heat share
+
+0.8
+
+0.6
+
+0.4
+
+0.2
+
+0.0
+
+0.142
+
+Foreground
+(strict mask)
+
+Background
+(strict mask)
+
+Overlay inspection refines this strict-mask result to chart-anchored but spatially diffuse attention.
+
+Fig. 10. Strict foreground/background mask diagnostic for the strict finalist.
+Average dilated foreground heat is 0.142 and average background heat is 0.858;
+overlay inspection refines this strict-mask result to chart-anchored but spatially
+diffuse attention.
+
+mostly falling-path charts with later stabilization or rebound,
+and the activation follows descending trend segments. Group B
+contains samples 16901, 16902 and 16906–16908. These show
+oscillatory or mixed structures and distributed multi-region
+evidence. Group C contains samples 16958–16967, with the
+available selected raw subset through 16965. These show a
+flat or noisy pre-drop structure followed by a clear right-side
+collapse, making them strong examples for down-side selected
+signals.
+
+The final XAI conclusion is therefore deliberately nuanced:
+Visual inspection of Grad-CAM outputs suggests that
+the CNN often attends to chart foreground structures
+and major trend segments, but the highlighted regions
+are typically broad and extend beyond the immediate candle path. Accordingly, Grad-CAM is most
+useful here as a diagnostic and decision-audit tool
+rather than as definitive proof of precise candle-level
+reasoning.
+This interpretation is consistent with the XAI literature on
+post-hoc explanation methods and saliency-map limitations [5]–
+[7], [18]–[20], [58], [59]. It also addresses the methodological
+question of whether the model is focusing on the chart or the
+background. In the representative selected cases, the answer
+is not purely background-focused; it is chart-anchored but
+spatially diffuse.
+I. Decision Support Studio Artifact
+The final dashboard, named Decision Support Studio, operationalizes the project contribution. It contains 404 curated
+rows, including 54 selected prediction rows linked to GradCAM/dashboard evidence. It supports raw chart, full overlay,
+masked overlay and heatmap-only views. It also includes filters
+by contract, split, signal, confidence, XAI quality, date and
+search term.
+The dashboard displays KPI cards, a signal queue, a caselevel decision studio, a benchmark ladder, a selective coverage
+frontier, XAI foreground/background diagnostics, queue composition, operational stance and an evidence hierarchy. These
+components are not cosmetic. They implement the management
+logic of the project: the analyst is shown what the model
+
+predicts, how confident the model is, how selective the rule is,
+and what visual evidence is available for inspection.
+The dashboard operationalizes the proposed decision-support
+framework by connecting selected CNN probability-tail cases
+to raw chart images, Grad-CAM heatmaps, masked overlays,
+confidence buckets, and coverage-performance analytics. Its
+purpose is not to automate trades, but to provide an auditable
+queue for analyst inspection.
+The artifact contribution is important because it converts
+model outputs into an operational analyst workflow with
+governance rules and caution messages. It shows a proposed
+solution, not only an empirical analysis.
+J. Discussion of Findings
+The results support four main findings.
+First, the full-sample edge is modest. The best full-sample
+CNN reaches 0.587 accuracy and 0.580 ROC-AUC. This is
+better than the initial 20-bar result and better than simple
+numeric benchmarks, but it is not strong enough to justify
+universal prediction. This finding is important because it
+prevents the thesis from overclaiming.
+Second, selective prediction substantially improves decision
+relevance. The strict I120 finalist achieves 0.833 accuracy at
+2.0% coverage, corresponding to 54 selected rows. The broader
+I60 selective rule also achieves approximately 0.693 accuracy
+at about 10.1% coverage. These results show that confidencetail filtering can turn a weak full-sample signal into a more
+useful decision-support queue.
+Third, visual baselines matter. The HOG baseline performs
+meaningfully at 2.0% coverage, with 0.704 accuracy and
+0.455 MCC. This confirms that chart-image structure contains exploitable visual information, while the stronger CNN
+strict finalist suggests that learned CNN probabilities provide
+additional selective value.
+Fourth, Grad-CAM is useful but limited. It provides an audit
+trail that helps analysts inspect selected cases, but it does not
+prove causal reasoning or exact candle-level understanding. The
+correct XAI conclusion is chart-anchored but spatially diffuse.
+Together, these findings support the central contribution: an
+intraday futures decision-support artifact that combines chartimage CNN prediction, selective abstention, visual explanation
+and dashboard-based analyst workflow.
+K. Limitations
+Several limitations must be stated clearly.
+First, the strongest result is based on a small selected sample.
+The strict finalist covers only 2.0% of cases and contains 54
+selected rows. A Wilson binomial interval for 45/54 gives
+an approximate 95% confidence interval of [0.713, 0.910].
+This interval is interpreted cautiously because rolling-window
+dependence can reduce the effective sample size. The result
+is suitable for selective decision support, but it cannot be
+generalized as full-sample predictive accuracy.
+Second, the selected Grad-CAM export is contractconcentrated. It contains 53 SiZ5 rows and one SiU5 row.
+
+Therefore, the image-level XAI evidence is not used to claim
+broad cross-contract generalization.
+Third, the dashboard/Grad-CAM recomputation gives 46/54
+correct while the formal grid reports 45/54. The manuscript
+uses the grid result as canonical and treats the dashboard value
+as an export consistency note.
+Fourth, Grad-CAM is post-hoc and imperfect. It can indicate
+visual regions associated with a prediction, but it does not
+establish causal market reasoning. Saliency methods can be
+sensitive to architecture, preprocessing and visualization choices
+[6], [18], [20].
+Fifth, the value/turnover field is unavailable because it
+remains all zero in the supplied raw and derived data. Therefore,
+the study does not claim to exploit valid turnover information.
+Sixth, rolling-window samples are overlapping and serially
+dependent. Adjacent images can be visually similar while
+labels change, especially around turning points. Chronological
+splitting mitigates leakage risk, but the effective independence
+of samples is lower than the raw row count suggests.
+Seventh, the study does not establish a final transactioncost-adjusted profitable trading strategy. No final confirmed
+Sharpe ratio, Sortino ratio, drawdown or cost-sensitive backtest
+package is available in the supplied final facts. Consequently,
+profitability is reserved for future work.
+L. Future Work
+Future research can extend the project in five directions.
+First, the selective signals can be evaluated in a transactioncost-aware economic backtest, including turnover, slippage,
+drawdown and risk-adjusted return. Second, the model can
+be tested across additional contracts and market regimes to
+examine generalization beyond the SiZ5-concentrated selected
+export. Third, XAI robustness can be evaluated with alternative
+methods such as Score-CAM, Integrated Gradients, SmoothGrad and saliency sanity checks [6], [48], [49], [51]. Fourth,
+selective prediction could be formalized further with calibrated
+abstention and selective-classification methods [61]–[63]. Fifth,
+the dashboard artifact can be evaluated with analyst users to
+measure whether the explanation and queue design improve
+decision quality.
+M. Conclusion
+This study developed and evaluated an explainable selective
+decision-support artifact for intraday MOEX Si futures analysis.
+Building on the chart-image CNN logic of “(Re-)Imag(in)ing
+Price Trends,” the project adapted visual price representations
+to a fifteen-minute futures setting, expanded the model design
+with longer and multi-scale intraday inputs, compared CNNs
+with numeric and classical visual baselines, applied selective
+probability-tail rules and integrated Grad-CAM evidence into
+a dashboard workflow.
+The
+empirical
+results
+show
+that
+full-sample
+prediction remains modest: the best full-sample model,
+single_I60_ma0_vol0, achieves 0.587 accuracy,
+0.559 balanced accuracy, 0.126 MCC and 0.580 ROCAUC. The selective setting is stronger. The strict finalist,
+
+TABLE XI
+Limitations and mitigation strategies.
+
+Limitation
+
+Evidence/reason
+
+Mitigation
+
+Modest full-sample edge
+Small strict-finalist coverage
+Small selected-sample uncertainty
+Grid-selection and multiplecomparison risk
+Dashboard/grid mismatch
+Contract concentration
+Post-hoc XAI
+Value unavailable
+Overlapping windows
+Profitability not established
+
+Best full-sample accuracy 0.587; MCC 0.126
+0.833 accuracy uses 2.0% coverage / 54 rows
+45/54 selected rows; Wilson 95% CI approximately [0.713,
+0.910]
+Strict finalist selected from multiple model/coverage configurations
+46/54 export vs 45/54 formal grid
+Selected Grad-CAM export is 53/54 SiZ5
+Grad-CAM is broad and spatially diffuse
+Value/turnover column all zero
+Adjacent charts can be similar with label changes
+No final cost-aware backtest package
+
+Frame as selective support
+Always report coverage and rows
+Report uncertainty; validate on additional contracts/regimes
+Treat as exploratory; validate across additional
+contracts/regimes
+Use grid as canonical
+Avoid broad cross-contract claims
+Use as audit, not causal proof
+Treat as unavailable feature
+Chronological split and caution
+No automated profitability claim
+
+single_I120_ma0_vol0, achieves 0.833 accuracy at
+2.0% coverage, corresponding to 54 selected rows, with 0.834
+balanced accuracy, 0.830 F1-score and 0.667 MCC. The best
+multi-scale gated model also performs strongly in the selected
+setting, while HOG provides a meaningful but weaker classical
+visual comparator.
+The XAI analysis supports a cautious conclusion. Grad-CAM
+outputs in representative selected cases are generally chartanchored but spatially diffuse. They help analysts inspect model
+evidence, but they do not prove causal candlestick reasoning.
+The Decision Support Studio dashboard therefore uses XAI as
+a diagnostic and audit layer, not as a guarantee of correctness.
+The final contribution is not an automated trading system. It
+is a selective, auditable and human-in-the-loop decision-support
+artifact that abstains from ambiguous intraday windows and
+surfaces high-confidence cases for analyst review.
+References
+[1] J. Jiang, B. Kelly, and D. Xiu, “(Re-)Imag(in)ing Price Trends,” The
+Journal of Finance, vol. 78, no. 6, pp. 3193–3249, 2023.
+[2] M. López de Prado, Advances in Financial Machine Learning. Hoboken,
+NJ, USA: Wiley, 2018.
+[3] O. B. Sezer, M. U. Gudelek, and A. M. Ozbayoglu, “Financial time
+series forecasting with deep learning: A systematic literature review:
+2005–2019,” Applied Soft Computing, vol. 90, p. 106181, 2020.
+[4] B. Lim and S. Zohren, “Time-series forecasting with deep learning: A
+survey,” Philosophical Transactions of the Royal Society A, vol. 379, no.
+2194, p. 20200209, 2021.
+[5] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and
+D. Batra, “Grad-CAM: Visual explanations from deep networks via
+gradient-based localization,” in Proceedings of the IEEE International
+Conference on Computer Vision, 2017, pp. 618–626.
+[6] J. Adebayo, J. Gilmer, M. Muelly, I. Goodfellow, M. Hardt, and B. Kim,
+“Sanity checks for saliency maps,” in Advances in Neural Information
+Processing Systems, vol. 31, 2018.
+[7] C. Rudin, “Stop explaining black box machine learning models for high
+stakes decisions and use interpretable models instead,” Nature Machine
+Intelligence, vol. 1, pp. 206–215, 2019.
+[8] W. Brock, J. Lakonishok, and B. LeBaron, “Simple technical trading
+rules and the stochastic properties of stock returns,” The Journal of
+Finance, vol. 47, no. 5, pp. 1731–1764, 1992.
+[9] A. W. Lo, H. Mamaysky, and J. Wang, “Foundations of technical
+analysis: Computational algorithms, statistical inference, and empirical
+implementation,” The Journal of Finance, vol. 55, no. 4, pp. 1705–1765,
+2000.
+[10] D. H. Bailey and M. López de Prado, “The Deflated Sharpe Ratio:
+Correcting for selection bias, backtest overfitting, and non-normality,”
+The Journal of Portfolio Management, vol. 40, no. 5, pp. 94–107, 2014.
+
+[11] Z. Zhang, S. Zohren, and S. Roberts, “DeepLOB: Deep convolutional
+neural networks for limit order books,” IEEE Transactions on Signal
+Processing, vol. 67, no. 11, pp. 3001–3012, 2019.
+[12] A. Tsantekidis, N. Passalis, A. Tefas, J. Kanniainen, M. Gabbouj, and
+A. Iosifidis, “Forecasting stock prices from the limit order book using
+convolutional neural networks,” in Proceedings of the IEEE Conference
+on Business Informatics, 2017, pp. 7–12.
+[13] J. Sirignano and R. Cont, “Universal features of price formation in
+financial markets: Perspectives from deep learning,” Quantitative Finance,
+vol. 19, no. 9, pp. 1449–1459, 2019.
+[14] Z. Wang and T. Oates, “Imaging time-series to improve classification
+and imputation,” Proceedings of the International Joint Conference on
+Artificial Intelligence Workshop, 2015.
+[15] H. I. Fawaz, G. Forestier, J. Weber, L. Idoumghar, and P.-A. Muller,
+“Deep learning for time series classification: A review,” Data Mining
+and Knowledge Discovery, vol. 33, pp. 917–963, 2019.
+[16] H. I. Fawaz, B. Lucas, G. Forestier, C. Pelletier, D. F. Schmidt,
+J. Weber, G. I. Webb, L. Idoumghar, P.-A. Muller, and F. Petitjean,
+“InceptionTime: Finding AlexNet for time series classification,” Data
+Mining and Knowledge Discovery, vol. 34, pp. 1936–1962, 2020.
+[17] A. Dempster, F. Petitjean, and G. I. Webb, “ROCKET: Exceptionally
+fast and accurate time series classification using random convolutional
+kernels,” Data Mining and Knowledge Discovery, vol. 34, pp. 1454–1495,
+2020.
+[18] R. Guidotti, A. Monreale, S. Ruggieri, F. Turini, F. Giannotti, and
+D. Pedreschi, “A survey of methods for explaining black box models,”
+ACM Computing Surveys, vol. 51, no. 5, pp. 93:1–93:42, 2018.
+[19] A. Adadi and M. Berrada, “Peeking inside the black-box: A survey
+on explainable artificial intelligence (XAI),” IEEE Access, vol. 6, pp.
+52 138–52 160, 2018.
+[20] A. B. Arrieta, N. Díaz-Rodríguez, J. Del Ser, A. Bennetot, S. Tabik,
+A. Barbado, S. García, S. Gil-López, D. Molina, R. Benjamins, R. Chatila,
+and F. Herrera, “Explainable artificial intelligence (XAI): Concepts,
+taxonomies, opportunities and challenges toward responsible AI,” Information Fusion, vol. 58, pp. 82–115, 2020.
+[21] P. Weber, K. V. Carl, and O. Hinz, “Applications of explainable artificial
+intelligence in finance—a systematic review of finance, information
+systems, and computer science literature,” Management Review Quarterly,
+vol. 74, pp. 867–907, 2024.
+[22] A. R. Hevner, S. T. March, J. Park, and S. Ram, “Design science in
+information systems research,” MIS Quarterly, vol. 28, no. 1, pp. 75–105,
+2004.
+[23] K. Peffers, T. Tuunanen, M. A. Rothenberger, and S. Chatterjee, “A
+design science research methodology for information systems research,”
+Journal of Management Information Systems, vol. 24, no. 3, pp. 45–77,
+2007.
+[24] J. Venable, J. Pries-Heje, and R. Baskerville, “FEDS: A framework for
+evaluation in design science research,” European Journal of Information
+Systems, vol. 25, no. 1, pp. 77–89, 2016.
+[25] B. Kitchenham and S. Charters, “Guidelines for performing systematic
+literature reviews in software engineering,” Keele University and Durham
+University, Tech. Rep. EBSE 2007-001, 2007.
+[26] M. J. Page, J. E. McKenzie, P. M. Bossuyt, I. Boutron, T. C. Hoffmann,
+C. D. Mulrow, L. Shamseer, J. M. Tetzlaff, E. A. Akl, S. E. Brennan,
+
+R. Chou, J. Glanville, J. M. Grimshaw, A. Hróbjartsson, M. M. Lalu,
+T. Li, E. W. Loder, E. Mayo-Wilson, S. McDonald, L. A. McGuinness,
+L. A. Stewart, J. Thomas, A. C. Tricco, V. A. Welch, P. Whiting, and
+D. Moher, “The PRISMA 2020 statement: An updated guideline for
+reporting systematic reviews,” BMJ, vol. 372, p. n71, 2021.
+[27] D. H. Bailey and M. López de Prado, “The Sharpe Ratio Efficient
+Frontier,” Journal of Risk, vol. 15, no. 2, pp. 13–44, 2012.
+[28] J. B. Heaton, N. G. Polson, and J. H. Witte, “Deep learning in finance,”
+Annual Review of Financial Economics, vol. 9, pp. 145–181, 2017.
+[29] Z. Jiang, D. Xu, and J. Liang, “A deep reinforcement learning framework for the financial portfolio management problem,” arXiv preprint
+arXiv:1706.10059, 2017.
+[30] J. Moody and M. Saffell, “Learning to trade via direct reinforcement,”
+IEEE Transactions on Neural Networks, vol. 12, no. 4, pp. 875–889,
+2001.
+[31] M. O’Hara, “High frequency market microstructure,” Journal of Financial
+Economics, vol. 116, no. 2, pp. 257–270, 2015.
+[32] A. Tsantekidis, N. Passalis, A. Tefas, J. Kanniainen, M. Gabbouj, and
+A. Iosifidis, “Using deep learning to detect price change indications in
+financial markets,” in Proceedings of the 25th European Signal Processing
+Conference, 2017, pp. 2511–2515.
+[33] A. N. Kercheval and Y. Zhang, “Modelling high-frequency limit order
+book dynamics with support vector machines,” Quantitative Finance,
+vol. 15, no. 8, pp. 1315–1329, 2015.
+[34] J.-P. Eckmann, S. O. Kamphorst, and D. Ruelle, “Recurrence plots of
+dynamical systems,” Europhysics Letters, vol. 4, no. 9, pp. 973–977,
+1987.
+[35] Z. Wang and T. Oates, “Encoding time series as images for visual
+inspection and classification using tiled convolutional neural networks,”
+Proceedings of the AAAI Workshop on Trajectory-Based Behavior
+Analytics, 2015.
+[36] O. B. Sezer and A. M. Ozbayoglu, “Algorithmic financial trading with
+deep convolutional neural networks: Time series to image conversion
+approach,” Applied Soft Computing, vol. 70, pp. 525–538, 2018.
+[37] B. D. Fulcher, M. A. Little, and N. S. Jones, “Highly comparative timeseries analysis: The empirical structure of time series and their methods,”
+Journal of the Royal Society Interface, vol. 10, no. 83, p. 20130048,
+2013.
+[38] L. Ye and E. Keogh, “Time series shapelets: A new primitive for data
+mining,” in Proceedings of the ACM SIGKDD International Conference
+on Knowledge Discovery and Data Mining, 2009, pp. 947–956.
+[39] J. Grabocka, N. Schilling, M. Wistuba, and L. Schmidt-Thieme, “Learning
+time-series shapelets,” in Proceedings of the ACM SIGKDD International
+Conference on Knowledge Discovery and Data Mining, 2014, pp. 392–
+401.
+[40] A. Guillaume, C. Vrain, and W. Elloumi, “Random dilated shapelet
+transform: A new approach for time series shapelets,” Pattern Recognition,
+vol. 142, p. 109701, 2023.
+[41] H. Sakoe and S. Chiba, “Dynamic programming algorithm optimization
+for spoken word recognition,” IEEE Transactions on Acoustics, Speech,
+and Signal Processing, vol. 26, no. 1, pp. 43–49, 1978.
+[42] F. Petitjean, A. Ketterlin, and P. Gançarski, “A global averaging method
+for dynamic time warping, with applications to clustering,” Pattern
+Recognition, vol. 44, no. 3, pp. 678–693, 2011.
+[43] E. Perez, F. Strub, H. de Vries, V. Dumoulin, and A. Courville, “FiLM:
+Visual reasoning with a general conditioning layer,” in Proceedings of
+the AAAI Conference on Artificial Intelligence, vol. 32, no. 1, 2018.
+[44] N. Dalal and B. Triggs, “Histograms of oriented gradients for human
+detection,” in Proceedings of the IEEE Computer Society Conference on
+Computer Vision and Pattern Recognition, 2005, pp. 886–893.
+[45] P. Viola and M. Jones, “Rapid object detection using a boosted cascade of
+simple features,” Proceedings of the IEEE Computer Society Conference
+on Computer Vision and Pattern Recognition, vol. 1, pp. I–511–I–518,
+2001.
+[46] B. Zhou, A. Khosla, A. Lapedriza, A. Oliva, and A. Torralba, “Learning
+deep features for discriminative localization,” in Proceedings of the
+IEEE Conference on Computer Vision and Pattern Recognition, 2016,
+pp. 2921–2929.
+[47] A. Chattopadhay, A. Sarkar, P. Howlader, and V. N. Balasubramanian,
+“Grad-CAM++: Generalized gradient-based visual explanations for deep
+convolutional networks,” in Proceedings of the IEEE Winter Conference
+on Applications of Computer Vision, 2018, pp. 839–847.
+[48] H. Wang, Z. Wang, M. Du, F. Yang, Z. Zhang, S. Ding, P. Mardziel, and
+X. Hu, “Score-CAM: Score-weighted visual explanations for convolu-
+
+tional neural networks,” in Proceedings of the IEEE/CVF Conference on
+Computer Vision and Pattern Recognition Workshops, 2020, pp. 24–25.
+[49] D. Smilkov, N. Thorat, B. Kim, F. Viégas, and M. Wattenberg, “SmoothGrad: Removing noise by adding noise,” arXiv preprint arXiv:1706.03825,
+2017.
+[50] G. Montavon, W. Samek, and K.-R. Müller, “Methods for interpreting
+and understanding deep neural networks,” Digital Signal Processing,
+vol. 73, pp. 1–15, 2018.
+[51] M. Sundararajan, A. Taly, and Q. Yan, “Axiomatic attribution for deep
+networks,” in Proceedings of the International Conference on Machine
+Learning, 2017, pp. 3319–3328.
+[52] A. Shrikumar, P. Greenside, and A. Kundaje, “Learning important
+features through propagating activation differences,” in Proceedings of
+the International Conference on Machine Learning, 2017, pp. 3145–3153.
+[53] M. T. Ribeiro, S. Singh, and C. Guestrin, “Why Should I Trust You?
+Explaining the Predictions of Any Classifier,” in Proceedings of the ACM
+SIGKDD International Conference on Knowledge Discovery and Data
+Mining, 2016, pp. 1135–1144.
+[54] S. M. Lundberg and S.-I. Lee, “A unified approach to interpreting model
+predictions,” in Advances in Neural Information Processing Systems,
+vol. 30, 2017.
+[55] S. Wachter, B. Mittelstadt, and C. Russell, “Counterfactual explanations
+without opening the black box: Automated decisions and the GDPR,”
+Harvard Journal of Law & Technology, vol. 31, no. 2, pp. 841–887,
+2017.
+[56] P. W. Koh and P. Liang, “Understanding black-box predictions via
+influence functions,” in Proceedings of the International Conference
+on Machine Learning, 2017, pp. 1885–1894.
+[57] B. Kim, M. Wattenberg, J. Gilmer, C. Cai, J. Wexler, F. Viégas, and
+R. Sayres, “Interpretability beyond feature attribution: Quantitative
+testing with concept activation vectors (TCAV),” in Proceedings of the
+International Conference on Machine Learning, 2018, pp. 2668–2677.
+[58] Z. C. Lipton, “The mythos of model interpretability,” Communications
+of the ACM, vol. 61, no. 10, pp. 36–43, 2018.
+[59] T. Miller, “Explanation in artificial intelligence: Insights from the social
+sciences,” Artificial Intelligence, vol. 267, pp. 1–38, 2019.
+[60] S. H. Kim, J. S. Park, H. S. Lee, S. H. Yoo, and K. J. Oh, “Combining
+CNN and Grad-CAM for profitability and explainability of investment
+strategy: Application to the KOSPI 200 futures,” Expert Systems with
+Applications, vol. 225, p. 120086, 2023.
+[61] C. K. Chow, “On optimum recognition error and reject tradeoff,” IEEE
+Transactions on Information Theory, vol. 16, no. 1, pp. 41–46, 1970.
+[62] R. El-Yaniv and Y. Wiener, “On the foundations of noise-free selective
+classification,” Journal of Machine Learning Research, vol. 11, pp. 1605–
+1641, 2010.
+[63] Y. Geifman and R. El-Yaniv, “Selective classification for deep neural
+networks,” in Advances in Neural Information Processing Systems, vol. 30,
+2017.
+[64] S. Amershi, D. Weld, M. Vorvoreanu, A. Fourney, B. Nushi, P. Collisson,
+J. Suh, S. Iqbal, P. N. Bennett, K. Inkpen, J. Teevan, R. Kikin-Gil, and
+E. Horvitz, “Guidelines for human-AI interaction,” in Proceedings of
+the CHI Conference on Human Factors in Computing Systems, 2019, pp.
+1–13.
+
+Appendix A. Declaration of Generative AI Assistance
+
+During the preparation of this thesis/manuscript package, generative AI tools, including ChatGPT, were used as auxiliary
+research-support instruments for organizing uploaded research materials, summarizing literature, improving academic wording,
+checking logical consistency, planning figures and tables, and supporting the interpretation and presentation of experimental
+outputs. The empirical data processing, experiment execution, result verification, final selection of arguments, and academic
+responsibility remain with the author.
+AI assistance was not used as a substitute for empirical evidence. All numerical results reported in the manuscript must be
+traceable to the supplied datasets, result files, notebooks, images, dashboard files, or explicitly provided confirmed project facts.
+No citation, table, figure, or empirical claim should be included in the final version unless it is verified against the uploaded
+materials or an independently checked bibliographic source.
+This appendix does not replace the HSE LMS AI-use declaration and survey. If AI was used in preparing the thesis, the
+author must declare it in the LMS upload form and complete the required HSE survey within the specified deadline.
+
+Appendix B. Empirical Materials and Reproducibility Package
+
+The empirical package used in this manuscript contains raw and derived market data, model outputs, dashboard files, image
+manifests, Grad-CAM visualizations and analysis notebooks. The confirmed package inventory includes 51 files: 21 result files,
+8 model files, 7 derived-data files and 15 raw-data files.
+The core data lineage is: 775,621 raw one-minute MOEX Si futures rows; 89,628 fifteen-minute by-contract candles; 29,926
+clean continuous-front fifteen-minute rows; 502 clean trading dates; an I60/R20 manifest with 19,249 valid samples; an I120/R20
+Option B manifest with 18,924 valid samples; and a numeric benchmark feature table with 17,303 rows.
+The continuous-front contract sequence is SiH4 → SiM4 → SiU4 → SiZ4 → SiH5 → SiM5 → SiU5 → SiZ5.
+The visual evidence package includes raw train, validation and test preview images; selected raw images corresponding to
+Grad-CAM cases; heatmap-only Grad-CAM images; full overlays; masked overlays; and dashboard screenshots. These materials
+support case-level audit but should not be interpreted as full-distribution XAI evidence unless explicitly stated.
+The dashboard artifact and public-facing project materials are available at the project repository and deployment links listed
+below. These links supplement the submitted manuscript and should be interpreted as artifact-access resources rather than
+additional empirical evidence beyond the verified files used in the thesis.
+•
+•
+
+GitHub repository: https://github.com/kazimskd7101-alt/Thesis_Dashboard_2026
+Dashboard deployment: https://kazimskd7101-alt.github.io/Thesis_Dashboard_2026/
+
+Appendix C. Training and Evaluation Protocol
+
+Table XII is included as a reproducibility disclosure. Fields are reported only when they are traceable to the supplied
+notebooks or result files; remaining unavailable fields are reported transparently rather than inferred, so that the boundary
+between verified implementation evidence and missing metadata remains clear.
+TABLE XII
+Verified training and evaluation protocol.
+
+Item
+
+Initial baseline workflow
+
+Revised final workflow
+
+Workflow role
+
+Initial 20-bar baseline experiment used to motivate the revised design. Revised final workflow used for the main multi-scale, selective and
+dashboard-supported results.
+Notebook source
+Untitled24.ipynb.
+moex_si_thesis_complete_workflow_v2 (3).ipynb.
+Model family
+StockCNN20.
+Single-scale I60/I120 CNNs and multi-scale gated 20/60/120 CNNs.
+Split method
+Chronological split as implemented in the baseline manifest.
+Strict chronological split by unique trade date. Split ratio: 70% train,
+15% validation and 15% test by unique trade dates.
+Option B after q-filter: 17,013 rows; train 11,745, validation 2,581, test
+Split rows
+Train 7059, validation 1645, test 1646.
+2,687.
+Main scales: [20, 60]. Option B scales: [20, 60, 120]. Input cross-day
+Input windows
+I20 / 20 bars.
+context is allowed for long contexts.
+Image sizes
+1 × 64 × 60 grayscale.
+Bar width is 3 pixels per bar. Height map: I20 = 64, I60 = 96, I120 =
+128. Width rule: width = 3× scale, so I20 = 60, I60 = 180 and I120 =
+360. Price panel ratio = 0.80; vertical padding = 0.03.
+R20 = 20-bar forward direction. With fifteen-minute bars, this corForecast label
+R20 / 20-bar forward direction.
+responds to approximately five trading hours ahead, subject to the
+trading calendar and available intraday observations. Future same-day
+requirement = True.
+Loss function
+nn.CrossEntropyLoss().
+nn.CrossEntropyLoss(weight=class_weights).
+Optimizer
+torch.optim.Adam(model.parameters(), lr=LR).
+torch.optim.AdamW(..., lr=lr,
+weight_decay=weight_decay).
+Learning rate
+1e−3.
+1e−4 for single and multi-scale models.
+Weight decay
+not available in the supplied materials.
+1e−4.
+Batch size
+64.
+64.
+Maximum epochs
+12.
+20.
+Early stopping patience
+3.
+5.
+Selected epoch / checkpoint Lowest validation loss; best epoch = 4; early stopping stopped at epoch Best validation checkpoint retained; best validation ROC-AUC used
+rule
+7.
+for checkpointing where reported. I120 OHLC-only best epoch = 4
+with best validation AUC = 0.576943755; multi-gated OHLC-only best
+epoch = 2; multi-gated rich best epoch = 3.
+Threshold selection
+not available in the supplied materials.
+Classification threshold selected on validation balanced accuracy.
+Random seed
+42.
+42.
+not available in the supplied materials unless explicitly visible in the Inverse class-frequency weights computed from the training split.
+Class weighting
+notebook.
+Device/environment
+CPU shown in notebook output.
+Google Colab / PyTorch workflow; CUDA reported in the revised
+workflow notebook. Exact GPU model is not available in the supplied
+materials. Main workers = 2; Option B workers = 0.
+Accuracy and ROC-AUC for the old baseline; final test accuracy = Accuracy, balanced accuracy, precision, recall, F1-score, MCC, ROCEvaluation metrics
+0.552248.
+AUC, log loss, Brier score, coverage and selected rows where available
+in result outputs.
+
+Note: Low-level implementation fields are reported only where traceable to the supplied notebooks. Exact GPU model and some initial baseline training
+details are not inferred when absent from the supplied materials.
+
+Appendix D. Result-Source Mapping
+Table XIII records how manuscript tables and figures map to supplied result files. Items not directly available are marked
+accordingly.
+TABLE XIII: Result-source mapping for reproducibility.
+Manuscript item
+
+Result/source file
+
+Table I
+
+si_1m_merged_raw.parquet; si_candles_15m_ row counts and package inventory
+row counts confirmed from supplied materiby_contract.parquet; si_continuous_front_
+als/context
+15m_clean_v2.parquet; package_manifest.csv
+si_front_daily_contracts_clean.csv/
+roll dates and front sequence
+daily volume removed because it was
+parquet; supplied roll sequence
+blank/unavailable
+train_raw_index.csv;
+val_raw_index.csv; manifest rows, contracts, selected dashboard/export recomputation only
+test_raw_index.csv; test_gradcam_index.csv export accuracy
+model checkpoint audit / supplied context
+parameter-entry audit
+approximate checkpoint entries only
+dashboard source files; app.js; dashboard data tables; final dashboard components and decision- artifact-function mapping, not a statistical result
+dashboard screenshots if present
+support functions
+table
+ablation_summary.csv; multi_scale_summary. full-sample metrics
+eligible N unavailable for numeric/momentum
+csv; final_compare_table.csv
+summaries where not directly supplied
+N traced from exact coverage and selected rows
+tail_grid_results.csv; optionB_tail_grid_ selective coverage frontier rows
+results.csv
+in source CSVs
+optionB_finalists.csv
+strict finalist and selected compara- Wilson CI added for 45/54 strict finalist
+tors
+final_compare_table.csv; hog_tail_results_ baseline metrics
+CNN strict finalist is reported in Table VIII
+I120_ma0_vol0.csv; haar_tail_results_I120_
+ma0_vol0.csv
+row-level cause of one-case discrepancy not
+test_gradcam_index.csv; optionB_tail_grid_ dashboard/export consistency note
+available in the supplied materials
+results.csv; optionB_finalists.csv
+synthesis from results tables, XAI diagnostics, data limitations limitation-evidence-mitigation map- includes small selected-sample uncertainty, gridand methodology notes
+ping
+selection risk, contract concentration, XAI caution, unavailable value/turnover, overlapping
+windows and no profitability claim
+Untitled24.ipynb; moex_si_thesis_complete_ training/evaluation protocol values
+missing low-level fields remain marked as not
+available in the supplied materials
+workflow_v2(3).ipynb
+this appendix table itself
+source traceability
+all table numbers checked against the final
+manuscript
+HSE project-based FQW requirements and manuscript section compliance with 7.5.1–7.5.5
+full table body visible in Appendix E
+mapping
+conceptual project pipeline
+data-to-decision workflow
+schematic, not empirical result
+Re-Imag paper and this thesis design comparison
+methodological alignment
+compares benchmark design with the present
+intraday decision-support design
+raw chart-image preview files / train, validation and test raw illustrative split examples
+representative inputs, not a performance result
+image batches
+model architecture design and checkpoint audit
+conceptual
+architecture
+and shows single-scale and multi-scale model famiparameter-entry summary
+lies
+dashboard source files / dashboard schematic
+artifact schematic
+summarizes Decision Support Studio components
+full-sample benchmark result tables
+full-sample benchmark ladder
+visualizes Table VI
+tail_grid_results.csv; optionB_tail_grid_ selective coverage frontier
+visualizes Table VII
+results.csv
+strict finalist and HOG/HAAR baseline tables
+selective CNN/HOG/HAAR compar- visualizes Table VIII/Table IX comparison
+ison
+selected raw/heat/overlay/masked image files for samples 16653 case-level Grad-CAM audit
+representative selected cases, not full distribuand 16958
+tion
+optionB_gradcam_summary_strict_best_score. average foreground/background heat overlay inspection refines the strict-mask result
+csv
+shares
+
+Table II
+Table III
+Table IV
+Table V
+Table VI
+Table VII
+Table VIII
+Table IX
+
+Table X
+Table XI
+
+Table XII
+Table XIII
+Table XIV
+Figure 1
+Figure 2
+Figure 3
+Figure 4
+Figure 5
+Figure 6
+Figure 7
+Figure 8
+Figure 9
+Figure 10
+
+Key metric/content
+
+Notes
+
+Appendix E. HSE Project-Based FQW Compliance Mapping
+Table XIV provides a compact mapping between the project-based FQW structure and the manuscript sections. It is included
+to make the applied project logic explicit for thesis assessment while preserving the scientific manuscript structure.
+TABLE XIV
+HSE project-based FQW compliance mapping.
+HSE project-based FQW requirement
+
+Where addressed in the manuscript
+
+Compliance note
+
+7.5.1 Description of the organization/practice Introduction; applied trading-analytics problem framing; The thesis frames the organization/practice problem as the need
+problem, relevance and objectives
+relevance, purpose, objectives, object, subject and practi- for selective and auditable intraday trading-analytics decision
+cal value
+support.
+7.5.2 Systematic review of relevant com- Section II, Analysis of Best Practices and Academic The literature review is organized as a taxonomy covering
+pany/practical approaches and academic publica- Literature
+financial ML, chart-image forecasting, intraday/high-frequency
+tions
+learning, visual baselines, XAI and decision-support artifacts.
+7.5.3 Diagnostic study of internal and external Section III, applied decision problem, internal/external The internal environment is the analyst/model-governance
+environment
+decision environment, data and market diagnostic framing workflow; the external environment is MOEX Si futures,
+intraday noise, contract rolls, overlapping windows and shorthorizon uncertainty.
+7.5.4 Selection and justification of project design Section III, data provenance, image/label design, Re-Imag The methodology is justified by the Re-Imag benchmark,
+and methodology
+alignment, CNNs, baselines, selective rule, Grad-CAM financial ML evaluation discipline, selective prediction logic
+and metrics
+and XAI audit requirements.
+7.5.5 Proposed solution, procedures, governance Section IV Decision Support Studio; Section V results, The proposed artifact includes the dashboard, analyst workand effectiveness evaluation
+discussion, limitations and conclusion
+flow, caution rules, evidence hierarchy, selective queue and
+quantitative/visual effectiveness evaluation.
+
+

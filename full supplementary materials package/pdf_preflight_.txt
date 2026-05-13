@@ -1,0 +1,6 @@
+PDF: /mnt/data/Intraday_Decision_Support_Manuscript_v7_citation_source_aligned.pdf
+Pages: 27
+Encrypted: False
+Openable (PyMuPDF): True
+Likely scanned: False
+XFA present: False

@@ -1,0 +1,47 @@
+PDF: /mnt/data/Intraday_Decision_Support_Manuscript_v7_citation_source_aligned.pdf
+Pages: 27
+Encrypted: False
+Page sizes (pt, rounded):
+  - 612 x 792 (27 page(s))
+Metadata:
+  /Author: Zeeshan Kazim
+  /CreationDate: D:20260509094630Z
+  /Creator: LaTeX with hyperref
+  /Keywords: MOEX Si futures, CNN, selective prediction, decision support, Grad-CAM
+  /ModDate: D:20260509094630Z
+  /PTEX.Fullbanner: This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) kpathsea version 6.4.0/dev
+  /Producer: pdfTeX-1.40.26
+  /Subject: HSE Master thesis manuscript
+  /Title: Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images
+  /Trapped: /False
+Outline items: 59
+Form fields: 0
+Attachments: 0
+Annotations: 134
+
+Fonts (pdffonts, first 25 lines):
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+OVVCER+TeXGyreTermesX-Regular        Type 1            Custom           yes yes yes    251  0
+BJJAYF+TeXGyreTermesX-BoldItalic     Type 1            Custom           yes yes yes    253  0
+XBIKDV+TeXGyreTermesX-Bold           Type 1            Custom           yes yes yes    254  0
+OVVCER+TeXGyreTermesX-Regular        Type 1            Custom           yes yes yes    255  0
+WVPPGR+TeXGyreTermesX-Italic         Type 1            Custom           yes yes yes    256  0
+VRWDQZ+NimbusMonL-Regu               Type 1            Custom           yes yes yes    257  0
+EVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes    321  0
+BMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes    322  0
+EVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes    377  0
+BMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes    378  0
+RVGVLD+txsys                         Type 1            Builtin          yes yes yes    471  0
+OHILNS+NewTXMI                       Type 1            Builtin          yes yes yes    472  0
+KIURTJ+NewTXMI7                      Type 1            Builtin          yes yes yes    481  0
+OGYQFN+txmiaX                        Type 1            Builtin          yes yes yes    483  0
+OVVCER+TeXGyreTermesX-Regular        Type 1            Custom           yes yes yes    484  0
+XBIKDV+TeXGyreTermesX-Bold           Type 1            Custom           yes yes yes    486  0
+EVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes    488  0
+BMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes    489  0
+MNLJBL+NimbusSanL-Bold               Type 1            Custom           yes yes yes    523  0
+OHFRFD+NimbusSanL-Regu               Type 1            Custom           yes yes yes    524  0
+XQJZMR+NimbusSanL-ReguItal           Type 1            Custom           yes yes yes    573  0
+EVICAO+DejaVuSans-Bold               CID TrueType      Identity-H       yes yes yes    610  0
+BMQQDV+DejaVuSans                    CID TrueType      Identity-H       yes yes yes    611  0

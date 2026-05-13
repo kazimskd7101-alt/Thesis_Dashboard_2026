@@ -1,0 +1,17 @@
+\title{Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images}
+
+\author{\IEEEauthorblockN{Zeeshan Kazim}
+\IEEEauthorblockA{\small Graduate School of Business, National Research University Higher School of Economics, Moscow, Russia\\
+\small E-mail: zeeshankazim101@gmail.com \quad ORCID: 0009-0000-8850-6185\\
+\small Supervisor: Seungmin Jin\\
+\small Graduate School of Business, National Research University Higher School of Economics, Moscow, Russia}}
+
+\maketitle
+
+\begin{abstract}
+Intraday futures markets generate many noisy short-horizon price windows, making always-on directional prediction difficult to use responsibly in trading analytics. This study develops a selective, explainable decision-support artifact for MOEX Si futures using candlestick chart images constructed from fifteen-minute data. Building on the chart-image learning framework of Jiang, Kelly, and Xiu's ``(Re-)Imag(in)ing Price Trends,'' the study adapts convolutional neural networks to an intraday futures setting, evaluates longer and multi-scale input windows, compares CNN outputs with numeric, momentum, HOG, and HAAR-style baselines, and integrates Grad-CAM visual diagnostics into a human-in-the-loop dashboard called Decision Support Studio. The empirical package contains 775,621 raw one-minute rows, 89,628 fifteen-minute by-contract candles, 29,926 clean continuous-front rows, and 502 clean trading dates. The best full-sample CNN achieves 0.587 accuracy, 0.559 balanced accuracy, 0.126 MCC, and 0.580 ROC-AUC, indicating only a modest full-sample edge. Stronger evidence appears under selective abstention: the strict I120 finalist achieves 0.833 accuracy at 2.0\% coverage, corresponding to 54 selected rows, with 0.834 balanced accuracy, 0.830 F1-score, and 0.667 MCC. Grad-CAM inspection suggests chart-anchored but spatially diffuse attention, supporting visual audit rather than causal proof of candle-level reasoning. The contribution is a selective, auditable workflow for analyst inspection, not an automated trading system.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Intraday decision support, candlestick chart images, convolutional neural networks, Grad-CAM, explainable AI, futures markets, selective prediction, MOEX Si futures, financial machine learning.
+\end{IEEEkeywords}

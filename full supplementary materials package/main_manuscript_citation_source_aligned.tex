@@ -1,0 +1,45 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images}, pdfauthor={Zeeshan Kazim}, pdfsubject={HSE Master thesis manuscript}, pdfkeywords={MOEX Si futures, CNN, selective prediction, decision support, Grad-CAM}}
+\usepackage{stfloats}
+\usepackage{cite}
+\usepackage{balance}
+\usepackage{microtype}
+\usepackage{cuted}
+\usepackage{capt-of}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\graphicspath{{figures/}}
+\setlength{\textfloatsep}{8pt plus 1pt minus 2pt}
+\setlength{\floatsep}{8pt plus 1pt minus 2pt}
+\setlength{\intextsep}{8pt plus 1pt minus 2pt}
+\begin{document}
+\input{front_matter_abstract_index_terms}
+\input{chapters/chapter1_introduction}
+\input{chapters/chapter2_literature}
+\input{chapters/chapter3_methodology}
+\input{chapters/chapter4_artifact}
+\input{chapters/chapter5_results_discussion}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\clearpage
+\onecolumn
+\appendices
+\input{appendices/appendix_A_ai_declaration}
+\input{appendices/appendix_B_empirical_materials}
+\input{appendices/appendix_C_training_protocol}
+\input{appendices/appendix_D_result_source_mapping}
+\input{appendices/appendix_E_hse_compliance_mapping}
+\end{document}

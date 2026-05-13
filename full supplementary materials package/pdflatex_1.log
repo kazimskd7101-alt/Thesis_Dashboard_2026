@@ -1,0 +1,1054 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+(./main_manuscript_v7_citation_source_aligned.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(/usr/share/texlive/texmf-dist/tex/latex/ieeetran/IEEEtran.cls
+Document Class: IEEEtran 2015/08/26 V1.8b by Michael Shell
+-- See the "IEEEtran_HOWTO" manual for usage information.
+-- http://www.michaelshell.org/tex/ieeetran/
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1ptm.fd)
+-- Using 8.5in x 11in (letter) paper.
+-- Using PDF output.
+-- This is a 10 point document.
+) (/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1ptm.fd))
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/newtxtext.sty
+`newtxtext' v1.744, 2024/04/01 Text macros taking advantage of TeXGyre Termes a
+nd its extensions (msharpe)
+(/usr/share/texlive/texmf-dist/tex/latex/xpatch/xpatch.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def))
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/keyval.tex))))
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.sty
+(/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/carlisle/scalefnt.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kastrup/binhex.tex)
+(/usr/share/texlive/texmf-dist/tex/latex/fontaxes/fontaxes.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/newtxmath.sty
+`newtxmath' v1.754, 2024/09/22 Math macros based originally on txfonts (msharpe
+) (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/centernot.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kastrup/binhex.tex)
+amsthm NOT loaded
+) (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+(/usr/share/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/sttools/stfloats.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/cite/cite.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/preprint/balance.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/sttools/cuted.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/capt-of/capt-of.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/pgf.revision.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered
+.code.tex)) (/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.de
+f)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.
+tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonomet
+ric.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerari
+thmetics.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformation
+s.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarypositioning.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarycalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/t1ntxtlf.fd)
+No file main_manuscript_v7_citation_source_aligned.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/omlntxmi.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/untxexa.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/lmsntxsy.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/lmxntxexx.fd)
+-- Lines per column: 56 (exact).
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/mt-ptm.cfg)
+(./front_matter_abstract_index_terms.tex) (./chapters/chapter1_introduction.tex
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 1 undefined on
+ input line 10.
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd)
+
+LaTeX Warning: Citation `lopez_de_prado_afml' on page 1 undefined on input line
+ 17.
+
+
+LaTeX Warning: Citation `sezer_financial_forecasting_survey' on page 1 undefine
+d on input line 17.
+
+
+LaTeX Warning: Citation `lim_zohren_time_series_forecasting' on page 1 undefine
+d on input line 17.
+
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 1 undefined on
+ input line 17.
+
+
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-
+dist/fonts/enc/dvips/newtx/ntx-ec-tlf.enc}{/usr/share/texlive/texmf-dist/fonts/
+enc/dvips/newtx/ntx-ec-tlf-pc.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvip
+s/base/8r.enc}]
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 2 undefined on input line 1
+9.
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 2 undefined on input li
+ne 19.
+
+
+LaTeX Warning: Citation `rudin_black_boxes' on page 2 undefined on input line 1
+9.
+
+
+LaTeX Warning: Citation `brock_technical_trading' on page 2 undefined on input 
+line 26.
+
+
+LaTeX Warning: Citation `lo_foundations_technical_analysis' on page 2 undefined
+ on input line 26.
+
+
+LaTeX Warning: Citation `lopez_de_prado_afml' on page 2 undefined on input line
+ 26.
+
+
+LaTeX Warning: Citation `bailey_deflated_sharpe' on page 2 undefined on input l
+ine 26.
+
+
+LaTeX Warning: Citation `sezer_financial_forecasting_survey' on page 2 undefine
+d on input line 28.
+
+
+LaTeX Warning: Citation `lim_zohren_time_series_forecasting' on page 2 undefine
+d on input line 28.
+
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 2 undefined on
+ input line 28.
+
+
+LaTeX Warning: Citation `deeplob' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `zhang_lob_cnn' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `sirignano_cont_universal' on page 2 undefined on input
+ line 30.
+
+
+LaTeX Warning: Citation `wang_oates_imaging_time_series' on page 2 undefined on
+ input line 30.
+
+
+LaTeX Warning: Citation `fawaz_tsc_review' on page 2 undefined on input line 30
+.
+
+
+LaTeX Warning: Citation `inceptiontime' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `rocket' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `guidotti_survey' on page 2 undefined on input line 30.
+
+
+
+LaTeX Warning: Citation `adadi_berrada_xai' on page 2 undefined on input line 3
+0.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `weber_xai_finance' on page 2 undefined on input line 3
+0.
+
+
+LaTeX Warning: Citation `hevner_dsr' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `peffers_dsrm' on page 2 undefined on input line 30.
+
+
+LaTeX Warning: Citation `venable_feds' on page 2 undefined on input line 30.
+
+
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 2 undefined on
+ input line 39.
+
+
+LaTeX Warning: Citation `deeplob' on page 2 undefined on input line 39.
+
+
+LaTeX Warning: Citation `sirignano_cont_universal' on page 2 undefined on input
+ line 39.
+
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 2 undefined on input line 3
+9.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 2 undefined on input line 39.
+
+
+LaTeX Warning: Citation `hevner_dsr' on page 2 undefined on input line 39.
+
+
+LaTeX Warning: Citation `peffers_dsrm' on page 2 undefined on input line 39.
+
+(./inserted_assets/fig_pipeline.tex)
+Underfull \hbox (badness 3514) in paragraph at lines 63--64
+[]\T1/ntxtlf/m/n/10 (+20) audit se-lected model de-ci-sions us-ing Grad-CAM
+
+[2]
+
+[3 <./figures/Figure_1_pipeline.pdf>]
+) (./chapters/chapter2_literature.tex
+
+LaTeX Warning: Citation `kitchenham_slr' on page 4 undefined on input line 10.
+
+
+LaTeX Warning: Citation `prisma2020' on page 4 undefined on input line 10.
+
+(./inserted_assets/fig_reimag.tex)
+
+LaTeX Warning: Citation `lopez_de_prado_afml' on page 4 undefined on input line
+ 18.
+
+
+LaTeX Warning: Citation `bailey_deflated_sharpe' on page 4 undefined on input l
+ine 18.
+
+
+LaTeX Warning: Citation `bailey_probabilistic_sharpe' on page 4 undefined on in
+put line 18.
+
+
+LaTeX Warning: Citation `heaton_deep_learning_finance' on page 4 undefined on i
+nput line 18.
+
+
+LaTeX Warning: Citation `sezer_financial_forecasting_survey' on page 4 undefine
+d on input line 18.
+
+
+LaTeX Warning: Citation `lim_zohren_time_series_forecasting' on page 4 undefine
+d on input line 18.
+
+
+LaTeX Warning: Citation `jiang_portfolio_drl' on page 4 undefined on input line
+ 18.
+
+
+LaTeX Warning: Citation `moody_direct_reinforcement' on page 4 undefined on inp
+ut line 18.
+
+
+LaTeX Warning: Citation `brock_technical_trading' on page 4 undefined on input 
+line 20.
+
+
+LaTeX Warning: Citation `lo_foundations_technical_analysis' on page 4 undefined
+ on input line 20.
+
+
+[4]
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 5 undefined on
+ input line 22.
+
+
+Underfull \vbox (badness 7344) has occurred while \output is active
+
+LaTeX Warning: Citation `sezer_financial_forecasting_survey' on page 5 undefine
+d on input line 26.
+
+
+LaTeX Warning: Citation `lim_zohren_time_series_forecasting' on page 5 undefine
+d on input line 26.
+
+
+LaTeX Warning: Citation `ohara_microstructure' on page 5 undefined on input lin
+e 33.
+
+
+LaTeX Warning: Citation `deeplob' on page 5 undefined on input line 35.
+
+
+LaTeX Warning: Citation `zhang_lob_cnn' on page 5 undefined on input line 35.
+
+
+LaTeX Warning: Citation `tsantekidis_lob' on page 5 undefined on input line 35.
+
+
+
+LaTeX Warning: Citation `sirignano_cont_universal' on page 5 undefined on input
+ line 35.
+
+
+LaTeX Warning: Citation `kercheval_lob_svm' on page 5 undefined on input line 3
+5.
+
+
+[5 <./figures/Figure_2_reimag_alignment.pdf>]
+
+LaTeX Warning: Citation `wang_oates_imaging_time_series' on page 6 undefined on
+ input line 46.
+
+
+LaTeX Warning: Citation `recurrence_plots' on page 6 undefined on input line 46
+.
+
+
+LaTeX Warning: Citation `gramian_fields' on page 6 undefined on input line 46.
+
+
+LaTeX Warning: Citation `sezer_ozbayoglu_tsi' on page 6 undefined on input line
+ 46.
+
+
+LaTeX Warning: Citation `fawaz_tsc_review' on page 6 undefined on input line 48
+.
+
+
+LaTeX Warning: Citation `inceptiontime' on page 6 undefined on input line 48.
+
+
+LaTeX Warning: Citation `rocket' on page 6 undefined on input line 48.
+
+
+LaTeX Warning: Citation `hctsa' on page 6 undefined on input line 48.
+
+
+LaTeX Warning: Citation `shapelets' on page 6 undefined on input line 48.
+
+
+LaTeX Warning: Citation `learning_shapelets' on page 6 undefined on input line 
+48.
+
+
+LaTeX Warning: Citation `random_dilated_shapelets' on page 6 undefined on input
+ line 48.
+
+
+LaTeX Warning: Citation `dtw' on page 6 undefined on input line 48.
+
+
+LaTeX Warning: Citation `dba' on page 6 undefined on input line 48.
+
+
+
+LaTeX Warning: Citation `perez_film' on page 6 undefined on input line 50.
+
+
+LaTeX Warning: Citation `dalal_hog' on page 6 undefined on input line 52.
+
+
+LaTeX Warning: Citation `viola_haar' on page 6 undefined on input line 52.
+
+
+LaTeX Warning: Citation `guidotti_survey' on page 6 undefined on input line 57.
+
+
+
+LaTeX Warning: Citation `adadi_berrada_xai' on page 6 undefined on input line 5
+7.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 6 undefined on input line 57.
+
+
+LaTeX Warning: Citation `weber_xai_finance' on page 6 undefined on input line 5
+7.
+
+
+LaTeX Warning: Citation `zhou_cam' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 6 undefined on input line 5
+9.
+
+
+LaTeX Warning: Citation `chattopadhay_gradcampp' on page 6 undefined on input l
+ine 59.
+
+
+LaTeX Warning: Citation `wang_scorecam' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `smilkov_smoothgrad' on page 6 undefined on input line 
+59.
+
+
+LaTeX Warning: Citation `montavon_lrp' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `sundararajan_integrated_gradients' on page 6 undefined
+ on input line 59.
+
+
+LaTeX Warning: Citation `shrikumar_deeplift' on page 6 undefined on input line 
+59.
+
+
+LaTeX Warning: Citation `ribeiro_lime' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `lundberg_shap' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `wachter_counterfactual' on page 6 undefined on input l
+ine 59.
+
+
+LaTeX Warning: Citation `koh_influence' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `kim_tcav' on page 6 undefined on input line 59.
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 6 undefined on input li
+ne 61.
+
+
+LaTeX Warning: Citation `lipton_mythos' on page 6 undefined on input line 61.
+
+
+LaTeX Warning: Citation `rudin_black_boxes' on page 6 undefined on input line 6
+1.
+
+
+LaTeX Warning: Citation `miller_explanation' on page 6 undefined on input line 
+61.
+
+
+[6]
+
+LaTeX Warning: Citation `kim_kospi_gradcam' on page 7 undefined on input line 6
+5.
+
+
+LaTeX Warning: Citation `hevner_dsr' on page 7 undefined on input line 72.
+
+
+LaTeX Warning: Citation `peffers_dsrm' on page 7 undefined on input line 72.
+
+
+LaTeX Warning: Citation `venable_feds' on page 7 undefined on input line 72.
+
+
+) (./chapters/chapter3_methodology.tex
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 7 undefined on
+ input line 10.
+
+
+[7]
+
+LaTeX Warning: Citation `lopez_de_prado_afml' on page 8 undefined on input line
+ 17.
+
+
+LaTeX Warning: Citation `bailey_deflated_sharpe' on page 8 undefined on input l
+ine 17.
+
+
+LaTeX Warning: Citation `deeplob' on page 8 undefined on input line 26.
+
+
+LaTeX Warning: Citation `zhang_lob_cnn' on page 8 undefined on input line 26.
+
+
+LaTeX Warning: Citation `sirignano_cont_universal' on page 8 undefined on input
+ line 26.
+
+
+LaTeX Warning: Citation `ohara_microstructure' on page 8 undefined on input lin
+e 26.
+
+
+
+LaTeX Warning: Citation `hevner_dsr' on page 8 undefined on input line 28.
+
+
+LaTeX Warning: Citation `peffers_dsrm' on page 8 undefined on input line 28.
+
+
+LaTeX Warning: Citation `venable_feds' on page 8 undefined on input line 28.
+
+(./inserted_assets/table_data_lineage.tex
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/ot1minntx.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/untxmia.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/untxsym.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/newtx/untxsyc.fd))
+(./inserted_assets/table_roll.tex)
+
+LaTeX Warning: Reference `tab:data-lineage' on page 8 undefined on input line 4
+5.
+
+
+LaTeX Warning: Reference `tab:roll-schedule' on page 8 undefined on input line 
+45.
+
+(./inserted_assets/table_manifest.tex) (./inserted_assets/fig_raw.tex)
+
+LaTeX Warning: Citation `wang_oates_imaging_time_series' on page 8 undefined on
+ input line 56.
+
+
+LaTeX Warning: Citation `sezer_ozbayoglu_tsi' on page 8 undefined on input line
+ 56.
+
+
+[8]
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 9 undefined on
+ input line 78.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active
+[9{/usr/share/texlive/texmf-dist/fonts/enc/dvips/newtx/ntx-ot1-tlf.enc} <./figu
+res/Figure_3_raw_split_examples.pdf>]
+(./inserted_assets/table_model_configs.tex) (./inserted_assets/fig_arch.tex
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd))
+
+LaTeX Warning: Reference `tab:model-configs' on page 10 undefined on input line
+ 104.
+
+
+[10]
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 11 undefined on input line 
+138.
+
+
+Underfull \hbox (badness 1609) in paragraph at lines 140--141
+\T1/ntxtlf/m/n/10 (+20) ground/background or chart/volume masks. Un-der strict
+
+[11]
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 12 undefined on input l
+ine 149.
+
+
+LaTeX Warning: Citation `rudin_black_boxes' on page 12 undefined on input line 
+149.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 12 undefined on input line 149.
+
+) (./chapters/chapter4_artifact.tex
+
+LaTeX Warning: Reference `fig:pipeline' on page 12 undefined on input line 27.
+
+
+LaTeX Warning: Citation `hevner_dsr' on page 12 undefined on input line 29.
+
+
+LaTeX Warning: Citation `peffers_dsrm' on page 12 undefined on input line 29.
+
+
+LaTeX Warning: Citation `venable_feds' on page 12 undefined on input line 29.
+
+
+[12]
+
+LaTeX Warning: Citation `chow_reject' on page 13 undefined on input line 54.
+
+
+LaTeX Warning: Citation `elyaniv_selective' on page 13 undefined on input line 
+54.
+
+
+LaTeX Warning: Citation `geifman_selective' on page 13 undefined on input line 
+54.
+
+
+Underfull \vbox (badness 1082) has occurred while \output is active
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 13 undefined on input line 
+88.
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 13 undefined on input l
+ine 88.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 13 undefined on input line 88.
+
+
+LaTeX Warning: Citation `rudin_black_boxes' on page 13 undefined on input line 
+88.
+
+(./inserted_assets/table_dashboard.tex) (./inserted_assets/fig_dash.tex)
+
+LaTeX Warning: Reference `tab:dashboard-functions' on page 13 undefined on inpu
+t line 99.
+
+
+[13]
+
+Underfull \vbox (badness 10000) has occurred while \output is active
+[14]
+
+LaTeX Warning: Citation `amershi_hai_guidelines' on page 15 undefined on input 
+line 138.
+
+
+) (./chapters/chapter5_results_discussion.tex
+
+LaTeX Warning: Citation `jiang_reimagining_price_trends' on page 15 undefined o
+n input line 15.
+
+(./inserted_assets/table_full_sample.tex) (./inserted_assets/fig_full.tex)
+
+LaTeX Warning: Reference `tab:full-sample' on page 15 undefined on input line 2
+6.
+
+
+Underfull \hbox (badness 3118) in paragraph at lines 26--27
+[]\T1/ntxtlf/m/n/10 (+20) Table [] re-ports full-sample model and bench-mark
+
+Underfull \hbox (badness 10000) in paragraph at lines 26--27
+\T1/ntxtlf/m/n/10 (+20) per-for-mance. The strongest full-coverage CNN is
+
+Underfull \hbox (badness 2837) in paragraph at lines 26--27
+\T1/pcr/m/n/10 single_I60_ma0_vol0\T1/ntxtlf/m/n/10 (+20) , which uses an I60 O
+HLC-
+
+[15]
+
+LaTeX Warning: Citation `lopez_de_prado_afml' on page 16 undefined on input lin
+e 30.
+
+
+LaTeX Warning: Citation `deeplob' on page 16 undefined on input line 30.
+
+
+LaTeX Warning: Citation `sirignano_cont_universal' on page 16 undefined on inpu
+t line 30.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active
+(./inserted_assets/table_tail.tex) (./inserted_assets/fig_frontier.tex)
+
+LaTeX Warning: Reference `tab:tail-grid' on page 16 undefined on input line 39.
+
+
+
+[16 <./figures/Figure_5_full_sample_benchmark_ladder.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active
+
+Underfull \vbox (badness 10000) has occurred while \output is active
+[17 <./figures/Figure_6_selective_coverage_frontier.pdf>]
+(./inserted_assets/table_strict.tex
+Underfull \hbox (badness 10000) in paragraph at lines 16--16
+[]|\T1/ntxtlf/m/n/7 (+20) Wilson 95%
+)
+
+LaTeX Warning: Reference `tab:strict-finalists' on page 18 undefined on input l
+ine 51.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 58--59
+[]\T1/ntxtlf/m/n/10 (+20) The strict-finalist \T1/pcr/m/n/10 single_I120_ma0_vo
+l0
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+[]\T1/ntxtlf/m/n/10 (+20) The best multi-scale gated se-lec-tive model is
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+\T1/pcr/m/n/10 multi_gated_20_60_120_ma0_vol0\T1/ntxtlf/m/n/10 (+20) . At 2.0%
+
+Underfull \hbox (badness 5711) in paragraph at lines 68--69
+\T1/ntxtlf/m/n/10 (+20) full-sample clas-si-fi-ca-tion. A richer multi-scale mo
+del,
+
+(./inserted_assets/table_baselines.tex
+
+LaTeX Warning: Reference `tab:strict-finalists' on page 18 undefined on input l
+ine 18.
+
+) (./inserted_assets/fig_hog.tex)
+[18 <./figures/Figure_7_hog_haar_cnn_comparison.pdf>]
+(./inserted_assets/table_gradcam.tex)
+Underfull \hbox (badness 10000) in paragraph at lines 95--96
+[]\T1/ntxtlf/m/n/10 (+20) The 0.852 value is a di-rect re-com-pu-ta-tion
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--96
+\T1/ntxtlf/m/n/10 (+20) from the dashboard/Grad-CAM ex-port file
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--96
+\T1/ntxtlf/m/n/10 (+20) and \T1/pcr/m/n/10 optionB_finalists.csv \T1/ntxtlf/m/n
+/10 (+20) re-ports 45 cor-rect
+
+(./inserted_assets/fig_xai.tex) (./inserted_assets/fig_xai_diag.tex)
+[19]
+Underfull \vbox (badness 10000) has occurred while \output is active
+
+LaTeX Warning: Citation `selvaraju_gradcam' on page 20 undefined on input line 
+118.
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 20 undefined on input l
+ine 118.
+
+
+LaTeX Warning: Citation `rudin_black_boxes' on page 20 undefined on input line 
+118.
+
+
+LaTeX Warning: Citation `guidotti_survey' on page 20 undefined on input line 11
+8.
+
+
+LaTeX Warning: Citation `adadi_berrada_xai' on page 20 undefined on input line 
+118.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 20 undefined on input line 118.
+
+
+LaTeX Warning: Citation `lipton_mythos' on page 20 undefined on input line 118.
+
+
+
+LaTeX Warning: Citation `miller_explanation' on page 20 undefined on input line
+ 118.
+
+
+[20 <./figures/Figure_8_gradcam_four_panel_audit.pdf> <./figures/Figure_10_xai_
+strict_mask_diagnostic.pdf>] (./inserted_assets/table_limits.tex)
+Underfull \hbox (badness 3333) in paragraph at lines 156--157
+[]\T1/ntxtlf/m/n/10 (+20) Second, the se-lected Grad-CAM ex-port is contract-
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 21 undefined on input l
+ine 160.
+
+
+LaTeX Warning: Citation `arrieta_xai' on page 21 undefined on input line 160.
+
+
+LaTeX Warning: Citation `guidotti_survey' on page 21 undefined on input line 16
+0.
+
+
+LaTeX Warning: Citation `wang_scorecam' on page 21 undefined on input line 171.
+
+
+
+LaTeX Warning: Citation `sundararajan_integrated_gradients' on page 21 undefine
+d on input line 171.
+
+
+LaTeX Warning: Citation `smilkov_smoothgrad' on page 21 undefined on input line
+ 171.
+
+
+LaTeX Warning: Citation `adebayo_sanity_checks' on page 21 undefined on input l
+ine 171.
+
+
+LaTeX Warning: Citation `chow_reject' on page 21 undefined on input line 171.
+
+
+LaTeX Warning: Citation `elyaniv_selective' on page 21 undefined on input line 
+171.
+
+
+LaTeX Warning: Citation `geifman_selective' on page 21 undefined on input line 
+171.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 178--179
+[]\T1/ntxtlf/m/n/10 (+20) The em-pir-i-cal re-sults show that full-sample
+
+Underfull \hbox (badness 1708) in paragraph at lines 178--179
+\T1/ntxtlf/m/n/10 (+20) pre-dic-tion re-mains mod-est: the best full-sample mod
+el,
+
+Underfull \hbox (badness 10000) in paragraph at lines 178--179
+\T1/pcr/m/n/10 single_I60_ma0_vol0\T1/ntxtlf/m/n/10 (+20) , achieves 0.587 ac-c
+u-racy,
+
+Underfull \hbox (badness 1418) in paragraph at lines 178--179
+\T1/pcr/m/n/10 single_I120_ma0_vol0\T1/ntxtlf/m/n/10 (+20) , achieves 0.833 ac-
+cu-racy at
+
+[21])
+No file main_manuscript_v7_citation_source_aligned.bbl.
+
+
+[22] (./appendices/appendix_A_ai_declaration.tex)
+(./appendices/appendix_B_empirical_materials.tex)
+(./appendices/appendix_C_training_protocol.tex
+
+LaTeX Warning: Reference `tab:training-protocol' on page 23 undefined on input 
+line 4.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--26
+[]|\T1/pcr/m/n/7 torch.optim.AdamW(..., lr=lr,
+
+Underfull \vbox (badness 10000) has occurred while \output is active
+[23]) (./appendices/appendix_D_result_source_mapping.tex
+[24]
+
+LaTeX Warning: Reference `tab:result-source-map' on page 25 undefined on input 
+line 6.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--27
+[]|$\T1/pcr/m/n/7 si _ 1m _ merged _ raw . parquet$\T1/ntxtlf/m/n/7 (+20) ; $\T
+1/pcr/m/n/7 si _ candles _ 15m _
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--27
+\T1/pcr/m/n/7 by _ contract . parquet$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr/m/n/7 s
+i _ continuous _ front _
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+[]|$\T1/pcr/m/n/7 si _ front _ daily _ contracts _ clean . csv /
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--29
+[]|\T1/ntxtlf/m/n/7 (+20) daily vol-ume re-moved be-cause it was
+
+Underfull \hbox (badness 10000) in paragraph at lines 29--29
+[]|$\T1/pcr/m/n/7 train _ raw _ index . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr/m
+/n/7 val _ raw _ index . csv$\T1/ntxtlf/m/n/7 (+20) ;
+
+Underfull \hbox (badness 10000) in paragraph at lines 32--32
+[]|$\T1/pcr/m/n/7 ablation _ summary . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr/m/
+n/7 multi _ scale _ summary .
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--33
+[]|$\T1/pcr/m/n/7 tail _ grid _ results . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr
+/m/n/7 optionB _ tail _ grid _
+
+Underfull \hbox (badness 3460) in paragraph at lines 35--35
+[]|$\T1/pcr/m/n/7 final _ compare _ table . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/p
+cr/m/n/7 hog _ tail _ results _
+
+Underfull \hbox (badness 3460) in paragraph at lines 35--35
+\T1/pcr/m/n/7 I120 _ ma0 _ vol0 . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr/m/n/7 h
+aar _ tail _ results _ I120 _
+
+Underfull \hbox (badness 3460) in paragraph at lines 36--36
+[]|$\T1/pcr/m/n/7 test _ gradcam _ index . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pc
+r/m/n/7 optionB _ tail _ grid _
+
+Underfull \hbox (badness 3460) in paragraph at lines 38--38
+[]|$\T1/pcr/m/n/7 Untitled24 . ipynb$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr/m/n/7 mo
+ex _ si _ thesis _ complete _
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--44
+[]|\T1/ntxtlf/m/n/7 (+20) conceptual ar-chi-tec-ture and
+
+Underfull \hbox (badness 10000) in paragraph at lines 47--47
+[]|$\T1/pcr/m/n/7 tail _ grid _ results . csv$\T1/ntxtlf/m/n/7 (+20) ; $\T1/pcr
+/m/n/7 optionB _ tail _ grid _
+
+Underfull \hbox (badness 10000) in paragraph at lines 50--50
+[]|$\T1/pcr/m/n/7 optionB _ gradcam _ summary _ strict _ best _ score .
+) (./appendices/appendix_E_hse_compliance_mapping.tex
+[25]
+
+LaTeX Warning: Reference `tab:hse-compliance-map' on page 26 undefined on input
+ line 5.
+
+
+Underfull \hbox (badness 6016) in paragraph at lines 18--18
+[]|\T1/ntxtlf/m/n/7 (+20) 7.5.2 Sys-tem-atic re-view of rel-e-vant com-
+)
+
+** Conference Paper **
+Before submitting the final camera ready copy, remember to:
+
+ 1. Manually equalize the lengths of two columns on the last page
+ of your paper;
+
+ 2. Ensure that any PostScript and/or PDF output post-processing
+ uses only Type 1 fonts and that every step in the generation
+ process uses the appropriate paper size.
+
+
+[26] (./main_manuscript_v7_citation_source_aligned.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `main_manuscript_v7_citation_source_aligne
+d.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)</usr/share/texlive/texmf-d
+ist/fonts/type1/public/newtx/NewTXMI.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/public/newtx/NewTXMI7.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/newtx/txmiaX.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/newtx/txsy
+s.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/s
+hare/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/urw/helvetic/uhvro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/newtx/ztmb.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/newtx/
+ztmbi.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/newtx/ztmr.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/newtx/ztmri.pfb>
+Output written on main_manuscript_v7_citation_source_aligned.pdf (26 pages, 625
+949 bytes).
+Transcript written on main_manuscript_v7_citation_source_aligned.log.

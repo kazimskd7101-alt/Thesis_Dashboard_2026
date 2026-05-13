@@ -1,0 +1,22 @@
+Title:           Intraday Decision Support for Traders: Selective CNN-Based Directional Forecasting from Candlestick Chart Images
+Subject:         HSE Master thesis manuscript
+Keywords:        MOEX Si futures, CNN, selective prediction, decision support, Grad-CAM
+Author:          Zeeshan Kazim
+Creator:         LaTeX with hyperref
+Producer:        pdfTeX-1.40.26
+CreationDate:    Sat May  9 09:46:30 2026 UTC
+ModDate:         Sat May  9 09:46:30 2026 UTC
+Custom Metadata: yes
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           27
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       652521 bytes
+Optimized:       no
+PDF version:     1.7
