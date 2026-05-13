@@ -1,0 +1,24 @@
+\begin{table*}[!t]
+\centering
+\caption{Limitations and mitigation strategies.}
+\label{tab:limitations}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.18\textwidth}p{0.40\textwidth}p{0.32\textwidth}}
+\toprule
+Limitation & Evidence/reason & Mitigation \\
+\midrule
+Modest full-sample edge & Best full-sample accuracy 0.587; MCC 0.126 & Frame as selective support \\
+Small strict-finalist coverage & 0.833 accuracy uses 2.0\% coverage / 54 rows & Always report coverage and rows \\
+Small selected-sample uncertainty & 45/54 selected rows; Wilson 95\% CI approximately [0.713, 0.910] & Report uncertainty; validate on additional contracts/regimes \\
+Grid-selection and multiple-comparison risk & Strict finalist selected from multiple model/coverage configurations & Treat as exploratory; validate across additional contracts/regimes \\
+Dashboard/grid mismatch & 46/54 export vs 45/54 formal grid & Use grid as canonical \\
+Contract concentration & Selected Grad-CAM export is 53/54 SiZ5 & Avoid broad cross-contract claims \\
+Post-hoc XAI & Grad-CAM is broad and spatially diffuse & Use as audit, not causal proof \\
+Value unavailable & Value/turnover column all zero & Treat as unavailable feature \\
+Overlapping windows & Adjacent charts can be similar with label changes & Chronological split and caution \\
+Profitability not established & No final cost-aware backtest package & No automated profitability claim \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

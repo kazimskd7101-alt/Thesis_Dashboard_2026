@@ -1,0 +1,28 @@
+\begin{table*}[!t]
+\centering
+\caption{Selective tail-rule results by grid family.}
+\label{tab:tail-grid}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.08\textwidth}p{0.30\textwidth}p{0.07\textwidth}p{0.06\textwidth}p{0.07\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}}
+\toprule
+Grid & Model/source & Eligible N & Cov. & Selected & Acc. & BAcc. & F1 & MCC \\
+\midrule
+Original & single\_I60\_ma0\_vol0 & 2722 & 0.101 & 274 & 0.693 & 0.694 & 0.698 & 0.387 \\
+Original & single\_I60\_ma0\_vol0 & 2722 & 0.051 & 138 & 0.688 & 0.695 & 0.715 & 0.384 \\
+Original & multi\_20\_60\_ma1\_vol1 & 2722 & 0.051 & 138 & 0.688 & 0.690 & 0.703 & 0.379 \\
+Original & multi\_20\_60\_ma1\_vol1 & 2722 & 0.030 & 82 & 0.671 & 0.671 & 0.675 & 0.342 \\
+Original & single\_I60\_ma0\_vol0 & 2722 & 0.201 & 546 & 0.667 & 0.668 & 0.651 & 0.335 \\
+Option B & single\_I120\_ma0\_vol0 & 2687 & 0.020 & 54 & 0.833 & 0.834 & 0.830 & 0.667 \\
+Option B & multi\_gated\_20\_60\_120\_ma0\_vol0 & 2687 & 0.020 & 54 & 0.796 & 0.807 & 0.776 & 0.603 \\
+Option B & multi\_gated\_20\_60\_120\_ma1\_vol1 & 2687 & 0.020 & 54 & 0.778 & 0.792 & 0.750 & 0.570 \\
+Option B & multi\_gated\_20\_60\_120\_ma1\_vol1 & 2687 & 0.031 & 82 & 0.780 & 0.787 & 0.763 & 0.567 \\
+Option B & single\_I120\_ma0\_vol0 & 2687 & 0.031 & 82 & 0.780 & 0.783 & 0.769 & 0.564 \\
+Option B & single\_I120\_ma0\_vol0 & 2687 & 0.051 & 136 & 0.743 & 0.744 & 0.733 & 0.487 \\
+Option B & multi\_gated\_20\_60\_120\_ma1\_vol1 & 2687 & 0.051 & 136 & 0.728 & 0.728 & 0.726 & 0.456 \\
+Option B & multi\_gated\_20\_60\_120\_ma0\_vol0 & 2687 & 0.031 & 82 & 0.720 & 0.723 & 0.701 & 0.442 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}\parbox{\textwidth}{\footnotesize \emph{Note:} Eligible N is traced from exact coverage and selected-row fields in the corresponding result CSV; coverage is rounded in the manuscript. Rounding, ties, and grid-specific filtering can make realized coverage differ slightly from the intended nominal coverage.}
+\end{table*}

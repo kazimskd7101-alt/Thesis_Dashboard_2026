@@ -1,0 +1,19 @@
+\begin{table*}[!t]
+\centering
+\caption{Image and selected-case manifest summary.}
+\label{tab:image-manifest}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.18\textwidth}p{0.05\textwidth}p{0.11\textwidth}p{0.14\textwidth}p{0.22\textwidth}p{0.07\textwidth}p{0.06\textwidth}}
+\toprule
+Manifest & Rows & Sample IDs & Contracts & Time span & Pos. rate & Acc. \\
+\midrule
+Train raw preview & 100 & 0-103 & SiH4:100 & 2024-01-08 to 2024-01-10 & 0.640 & -- \\
+Validation raw preview & 100 & 13051-13160 & SiM5:100 & 2025-05-22 to 2025-05-26 & 0.480 & -- \\
+Test raw preview & 150 & 15998-16161 & SiU5:150 & 2025-09-05 to 2025-09-10 & 0.827 & -- \\
+Selected Grad-CAM export & 54 & 16301-18721 & SiU5:1, SiZ5:53 & 2025-09-16 to 2025-12-11 & 0.537 & 0.852 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}\parbox{\textwidth}{\footnotesize \emph{Note:} Selected Grad-CAM export accuracy is dashboard/export recomputation only; the formal Option B grid result of 0.833 is canonical.}
+\end{table*}

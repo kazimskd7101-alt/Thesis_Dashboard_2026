@@ -1,0 +1,21 @@
+\begin{table*}[!t]
+\centering
+\caption{Model configurations and manuscript roles.}
+\label{tab:model-configs}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.28\textwidth}p{0.12\textwidth}p{0.10\textwidth}p{0.14\textwidth}p{0.10\textwidth}p{0.20\textwidth}}
+\toprule
+Model/source & Input & Features & Family & Params & Role \\
+\midrule
+Old 20-bar StockCNN & I20/R20 & Chart image & single & not audited & Old baseline \\
+single\_I60\_ma0\_vol0 & I60/R20 & OHLC & single & \textasciitilde{}397k & Best full-sample/broad selective \\
+single\_I120\_ma0\_vol0 & I120/R20 & OHLC & single & \textasciitilde{}988k & Strict finalist \\
+multi\_gated\_20\_60\_120\_ma0\_vol0 & 20/60/120 & OHLC & multi-gated & \textasciitilde{}2.83M & Best multi-scale selected \\
+multi\_gated\_20\_60\_120\_ma1\_vol1 & 20/60/120 & MA+vol & multi-gated & \textasciitilde{}2.83M & Rich variant \\
+HOG\_I120\_ma0\_vol0 & I120/R20 & HOG & classical & n/a & Visual comparator \\
+HAAR\_I120\_ma0\_vol0 & I120/R20 & HAAR-like & classical & n/a & Weaker comparator \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

@@ -1,0 +1,22 @@
+\begin{table*}[!t]
+\centering
+\caption{Data lineage and row counts.}
+\label{tab:data-lineage}
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.34\textwidth}rp{0.46\textwidth}}
+\toprule
+Object & Rows/files & Role \\
+\midrule
+Raw one-minute MOEX Si data & 775,621 & Raw input; value/turnover unavailable \\
+15-minute by-contract candles & 89,628 & Contract-level aggregation \\
+Clean continuous-front series & 29,926 & Chronological front-contract series \\
+Clean trading dates & 502 & Liquidity-filtered clean days \\
+I60/R20 manifest & 19,249 & Single-scale I60 samples \\
+I120/R20 Option B manifest & 18,924 & Strict-finalist sample base \\
+Numeric benchmark features & 17,303 & Non-image benchmark features \\
+Package manifest & 51 files & 21 results, 8 models, 7 derived, 15 raw \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

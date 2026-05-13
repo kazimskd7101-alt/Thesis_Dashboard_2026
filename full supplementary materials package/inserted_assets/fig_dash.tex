@@ -1,0 +1,49 @@
+\begin{figure*}[!t]
+\centering
+{\hypersetup{hidelinks}%
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    >=Latex,
+    panel/.style 2 args={rounded corners=4pt, draw=#1, line width=0.9pt, fill=#2, inner sep=0pt, align=left},
+    header/.style={font=\sffamily\bfseries\large, text=blue!30!black, align=center},
+    body/.style={font=\sffamily\normalsize, text=black, align=left},
+    arrow/.style={-{Latex[length=2.8mm]}, line width=0.85pt, draw=black!75}
+]
+
+
+
+\node[font=\sffamily\bfseries\LARGE] at (8.75,0.15) {Decision Support Studio: Selective Human-in-the-Loop Dashboard};
+
+% KPI panel
+\node[panel={blue!65!black}{blue!6}, minimum width=5.0cm, minimum height=3.45cm] (kpi) at (2.55,-2.65) {};
+\node[header] at (2.55,-1.55) {KPI / Evidence hierarchy};
+\node[body, anchor=north west] at (0.82,-2.12) {\begin{tabular}{@{}l@{}}Full-sample branch\\[2pt]Selective rule\\[2pt]Strict finalist\\[2pt]Coverage \& rows\end{tabular}};
+
+% Signal queue panel
+\node[panel={orange!70!black}{yellow!14}, minimum width=5.0cm, minimum height=3.45cm] (queue) at (2.55,-6.55) {};
+\node[header] at (2.55,-5.45) {Signal queue};
+\node[body, anchor=north west] at (0.82,-6.03) {\begin{tabular}{@{}l@{}}Ranked surfaced cases\\[2pt]Signal + confidence\\[2pt]Contract/date filters\\[2pt]XAI quality flags\end{tabular}};
+
+% Decision studio panel
+\node[panel={teal!60!black}{teal!7}, minimum width=6.25cm, minimum height=7.35cm] (studio) at (8.50,-4.60) {};
+\node[header] at (8.50,-1.55) {Decision studio};
+\node[body, anchor=north west] at (6.40,-2.35) {\begin{tabular}{@{}l@{}}Selected case metadata\\[3pt]Raw chart | Heatmap\\[3pt]Overlay | Masked view\\[3pt]Probability and return\end{tabular}};
+
+% Analytics panel
+\node[panel={black!55}{black!4}, minimum width=5.05cm, minimum height=7.35cm] (analytics) at (14.55,-4.60) {};
+\node[header] at (14.55,-1.55) {Analytics + governance};
+\node[body, anchor=north west] at (12.95,-2.35) {\begin{tabular}{@{}l@{}}Coverage frontier\\[3pt]Benchmark ladder\\[3pt]XAI allocation\\[3pt]Caution rules\end{tabular}};
+
+% Clean directional arrows routed through whitespace
+\draw[arrow] (kpi.east) -- (studio.west |- kpi.east);
+\draw[arrow] (queue.east) -- (studio.west |- queue.east);
+\draw[arrow] (studio.east) -- (analytics.west);
+
+\node[font=\sffamily\itshape\large] at (8.75,-8.95) {Purpose: auditable analyst inspection, not blind automation.};
+\end{tikzpicture}%
+}%
+}
+\caption{Decision Support Studio dashboard schematic. The schematic replaces the full browser screenshot in the main text and emphasizes the four operational regions: KPI/evidence hierarchy, signal queue, case-level decision studio, and analytics/governance panels.}
+\label{fig:dashboard-artifact}
+\end{figure*}

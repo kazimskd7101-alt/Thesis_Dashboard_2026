@@ -1,0 +1,19 @@
+\begin{table*}[!t]
+\centering
+\caption{Full-sample model and benchmark performance.}
+\label{tab:full-sample}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.29\textwidth}p{0.08\textwidth}p{0.09\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}}
+\toprule
+Model/source & Input & Eligible N & Cov. & Acc. & BAcc. & F1 & MCC & AUC \\
+\midrule
+numeric\_logit\_benchmark & Benchmark & not available & 1.000 & 0.456 & 0.496 & 0.537 & -0.010 & 0.523 \\
+simple\_momentum\_sign & Benchmark & not available & 1.000 & 0.522 & 0.518 & 0.467 & 0.036 & -- \\
+single\_I60\_ma0\_vol0 & I60 & 2722 & 1.000 & 0.587 & 0.559 & 0.437 & 0.126 & 0.580 \\
+multi\_20\_60\_ma1\_vol1 & 20/60 & 2722 & 1.000 & 0.475 & 0.520 & 0.565 & 0.049 & 0.549 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}\parbox{\textwidth}{\footnotesize \emph{Note:} Eligible N is reported when directly traceable from full-sample or exact coverage/result outputs; otherwise it is marked as not available in the supplied materials.}
+\end{table*}

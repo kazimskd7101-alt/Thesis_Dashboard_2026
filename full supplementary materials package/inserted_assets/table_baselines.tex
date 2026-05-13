@@ -1,0 +1,19 @@
+\begin{table*}[!t]
+\centering
+\caption{Numeric, momentum, HOG, and HAAR baseline comparison.}
+\label{tab:baselines}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.28\textwidth}p{0.07\textwidth}p{0.08\textwidth}p{0.06\textwidth}p{0.07\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.06\textwidth}}
+\toprule
+Baseline/source & Mode & Eligible N & Cov. & Selected & Acc. & BAcc. & F1 & MCC & AUC \\
+\midrule
+numeric\_logit\_benchmark & full & not available & 1.000 & -- & 0.456 & 0.496 & 0.537 & -0.010 & 0.523 \\
+simple\_momentum\_sign & full & not available & 1.000 & -- & 0.522 & 0.518 & 0.467 & 0.036 & -- \\
+HOG\_I120\_ma0\_vol0 & tail & 2687 & 0.020 & 54 & 0.704 & 0.754 & 0.619 & 0.455 & -- \\
+HAAR\_I120\_ma0\_vol0 & tail & 2687 & 0.051 & 136 & 0.574 & 0.582 & 0.491 & 0.155 & -- \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}\parbox{\textwidth}{\footnotesize \emph{Note:} The CNN strict finalist is reported in Table~\ref{tab:strict-finalists}; this table reports non-CNN and classical baseline comparators. Eligible N is marked as not available where it is not directly available in the supplied summary table.}
+\end{table*}
